@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GatePass · Bamishile Estate</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0a0a0a;
+    color: #fff;
+    min-height: 100vh;
+  }
+  .header {
+    background: #111;
+    padding: 16px;
+    border-bottom: 1px solid #222;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .header-title { font-size: 15px; font-weight: 600; }
+  .header-sub { font-size: 11px; color: #666; margin-top: 2px; }
+  .duty-badge {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: #0d2e1a;
+    color: #22c55e;
+    border: 1px solid #166534;
+  }
+  .tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: #111;
+    border-bottom: 1px solid #222;
+  }
+  .tab {
+    padding: 12px;
+    text-align: center;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+  }
+  .tab.active { color: #fff; border-bottom-color: #22c55e; }
+  .content { padding: 16px; }
+
+  /* SCAN PANEL */
+  .scan-box {
+    background: #111;
+    border-radius: 12px;
+    border: 1px solid #222;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  #reader { width: 100%; }
+  .scan-hint {
+    padding: 12px;
+    text-align: center;
+    font-size: 12px;
+    color: #666;
+  }
+  .start-scan-btn {
+    width: 100%;
+    padding: 14px;
+    background: #166534;
+    color: #fff;
+    border: none;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+  .stop-scan-btn {
+    width: 100%;
+    padding: 14px;
+    background: #7f1d1d;
+    color: #fff;
+    border: none;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    display: none;
+  }
+
+  /* CODE PANEL */
+  .code-input-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .code-input {
+    flex: 1;
+    padding: 14px;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 20px;
+    letter-spacing: 3px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .code-input::placeholder { color: #444; letter-spacing: 1px; font-size: 14px; }
+  .check-btn {
+    padding: 14px 20px;
+    background: #166534;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  /* RESULT CARDS */
+  .result-card {
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    display: none;
+  }
+  .result-card.show { display: block; }
+  .result-header {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .result-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .result-label { font-size: 14px; font-weight: 600; }
+  .result-body {
+    padding: 16px;
+    background: #111;
+  }
+  .visitor-name {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .visitor-unit {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 16px;
+  }
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #1a1a1a;
+    font-size: 13px;
+  }
+  .detail-row:last-of-type { border-bottom: none; }
+  .detail-key { color: #666; }
+  .detail-val { font-weight: 500; color: #fff; }
+  .action-btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 16px;
+  }
+  .btn-admit { background: #166534; color: #fff; }
+  .btn-checkout { background: #1e3a5f; color: #fff; }
+
+  /* ENTRY card */
+  .card-entry .result-header { background: #0d2e1a; }
+  .card-entry .result-dot { background: #22c55e; }
+  .card-entry .result-label { color: #22c55e; }
+
+  /* EXIT card */
+  .card-exit .result-header { background: #0c1f3a; }
+  .card-exit .result-dot { background: #60a5fa; }
+  .card-exit .result-label { color: #60a5fa; }
+
+  /* DENIED card */
+  .card-denied .result-header { background: #2d0a0a; }
+  .card-denied .result-dot { background: #ef4444; }
+  .card-denied .result-label { color: #ef4444; }
+  .card-denied .visitor-name { color: #ef4444; }
+
+  /* Loading */
+  .loading {
+    text-align: center;
+    padding: 24px;
+    color: #666;
+    font-size: 13px;
+    display: none;
+  }
+  .loading.show { display: block; }
+
+  /* Recent log */
+  .log-section { margin-top: 8px; }
+  .log-title {
+    font-size: 11px;
+    color: #444;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  .log-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: #111;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    font-size: 12px;
+  }
+  .log-name { color: #ccc; }
+  .log-status { color: #666; }
+  .log-status.entry { color: #22c55e; }
+  .log-status.exit { color: #60a5fa; }
+  .log-status.denied { color: #ef4444; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">Bamishile Estate</div>
+    <div class="header-sub">GatePass · Gate A</div>
+  </div>
+  <div class="duty-badge">On duty</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('scan')">Scan QR</div>
+  <div class="tab" onclick="switchTab('code')">Enter Code</div>
+</div>
+
+<div class="content">
+
+  <!-- SCAN PANEL -->
+  <div id="scan-panel">
+    <div class="scan-box">
+      <div id="reader"></div>
+      <div class="scan-hint" id="scan-hint">Camera will appear here</div>
+    </div>
+    <button class="start-scan-btn" id="start-btn" onclick="startScan()">Start Camera Scanner</button>
+    <button class="stop-scan-btn" id="stop-btn" onclick="stopScan()">Stop Scanner</button>
+  </div>
+
+  <!-- CODE PANEL -->
+  <div id="code-panel" style="display:none;">
+    <div class="code-input-row">
+      <input
+        class="code-input"
+        id="code-field"
+        placeholder="BS-0000"
+        maxlength="7"
+        oninput="formatCode(this)"
+        onkeydown="if(event.key==='Enter') verifyCode()"
+      />
+      <button class="check-btn" onclick="verifyCode()">Check</button>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading" id="loading">Checking pass...</div>
+
+  <!-- RESULT: ENTRY -->
+  <div class="result-card card-entry" id="card-entry">
+    <div class="result-header">
+      <div class="result-dot"></div>
+      <div class="result-label">Valid — Admit visitor</div>
+    </div>
+    <div class="result-body">
+      <div class="visitor-name" id="entry-name"></div>
+      <div class="visitor-unit" id="entry-unit"></div>
+      <div class="detail-row">
+        <span class="detail-key">Pass code</span>
+        <span class="detail-val" id="entry-code"></span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-key">Valid until</span>
+        <span class="detail-val" id="entry-valid"></span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-key">Issued by</span>
+        <span class="detail-val" id="entry-issued"></span>
+      </div>
+      <button class="action-btn btn-admit" onclick="admitVisitor()">Admit visitor</button>
+    </div>
+  </div>
+
+  <!-- RESULT: EXIT -->
+  <div class="result-card card-exit" id="card-exit">
+    <div class="result-header">
+      <div class="result-dot"></div>
+      <div class="result-label">Inside estate — Check out</div>
+    </div>
+    <div class="result-body">
+      <div class="visitor-name" id="exit-name"></div>
+      <div class="visitor-unit" id="exit-unit"></div>
+      <div class="detail-row">
+        <span class="detail-key">Pass code</span>
+        <span class="detail-val" id="exit-code"></span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-key">Entered at</span>
+        <span class="detail-val" id="exit-entry-time"></span>
+      </div>
+      <button class="action-btn btn-checkout" onclick="checkoutVisitor()">Check out visitor</button>
+    </div>
+  </div>
+
+  <!-- RESULT: DENIED -->
+  <div class="result-card card-denied" id="card-denied">
+    <div class="result-header">
+      <div class="result-dot"></div>
+      <div class="result-label">Access Denied</div>
+    </div>
+    <div class="result-body">
+      <div class="visitor-name" id="denied-reason">Invalid pass</div>
+      <div class="visitor-unit" id="denied-code"></div>
+      <div class="detail-row">
+        <span class="detail-key">Action</span>
+        <span class="detail-val">Call resident to re-issue pass</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECENT LOG -->
+  <div class="log-section">
+    <div class="log-title">Recent activity</div>
+    <div id="log-list"></div>
+  </div>
+
+</div>
+
+<script>
+const SERVER = 'https://gatepass-bamishile-production.up.railway.app';
+let currentPass = null;
+let scanner = null;
+let scannerRunning = false;
+
+// ── TAB SWITCHING ──
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('scan-panel').style.display = tab === 'scan' ? 'block' : 'none';
+  document.getElementById('code-panel').style.display = tab === 'code' ? 'block' : 'none';
+  clearResults();
+  if (tab === 'code' && scannerRunning) stopScan();
+}
+
+// ── FORMAT CODE INPUT ──
+function formatCode(el) {
+  let v = el.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (v.length > 2 && v[2] !== '-') v = v.slice(0,2) + '-' + v.slice(2);
+  el.value = v.slice(0,7);
+  if (v.length === 7) verifyCode();
+}
+
+// ── QR SCANNER ──
+function startScan() {
+  document.getElementById('start-btn').style.display = 'none';
+  document.getElementById('stop-btn').style.display = 'block';
+  document.getElementById('scan-hint').textContent = 'Point camera at QR code';
+
+  scanner = new Html5Qrcode('reader');
+  scanner.start(
+    { facingMode: 'environment' },
+    { fps: 10, qrbox: { width: 250, height: 250 } },
+    (decodedText) => {
+      stopScan();
+      verify(decodedText.trim().toUpperCase());
+    },
+    () => {}
+  );
+  scannerRunning = true;
+}
+
+function stopScan() {
+  if (scanner && scannerRunning) {
+    scanner.stop().catch(() => {});
+    scannerRunning = false;
+  }
+  document.getElementById('start-btn').style.display = 'block';
+  document.getElementById('stop-btn').style.display = 'none';
+  document.getElementById('scan-hint').textContent = 'Camera stopped';
+}
+
+// ── VERIFY FROM CODE INPUT ──
+function verifyCode() {
+  const code = document.getElementById('code-field').value.trim().toUpperCase();
+  if (code.length < 7) return;
+  verify(code);
+}
+
+// ── CORE VERIFY FUNCTION ──
+async function verify(passCode) {
+  clearResults();
+  showLoading(true);
+  currentPass = passCode;
+
+  try {
+    const res = await fetch(`${SERVER}/api/verify/${passCode}`);
+    const data = await res.json();
+    showLoading(false);
+    handleResult(data, passCode);
+  } catch (err) {
+    showLoading(false);
+    showDenied('Server error — check connection', passCode);
+  }
+}
+
+// ── HANDLE RESULT ──
+function handleResult(data, passCode) {
+  if (!data.valid) {
+    showDenied(data.reason || 'Invalid pass', passCode);
+    addLog(passCode, 'denied');
+    return;
+  }
+
+  const pass = data.pass;
+  const validTo = new Date(pass.valid_to).toLocaleTimeString('en-NG', {
+    hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Lagos'
+  });
+
+  if (data.action === 'ENTRY') {
+    document.getElementById('entry-name').textContent = pass.visitor_name;
+    document.getElementById('entry-unit').textContent = `Visiting ${pass.house_number} · Bamishile Estate`;
+    document.getElementById('entry-code').textContent = passCode;
+    document.getElementById('entry-valid').textContent = `Today until ${validTo}`;
+    document.getElementById('entry-issued').textContent = pass.house_number;
+    document.getElementById('card-entry').classList.add('show');
+  }
+
+  if (data.action === 'EXIT') {
+    const entryTime = new Date(pass.entry_time).toLocaleTimeString('en-NG', {
+      hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Lagos'
+    });
+    document.getElementById('exit-name').textContent = pass.visitor_name;
+    document.getElementById('exit-unit').textContent = `Visiting ${pass.house_number} · Bamishile Estate`;
+    document.getElementById('exit-code').textContent = passCode;
+    document.getElementById('exit-entry-time').textContent = entryTime;
+    document.getElementById('card-exit').classList.add('show');
+  }
+}
+
+// ── ADMIT ──
+async function admitVisitor() {
+  if (!currentPass) return;
+  try {
+    const res = await fetch(`${SERVER}/api/entry/${currentPass}`, { method: 'POST' });
+    const data = await res.json();
+    if (data.success) {
+      addLog(currentPass, 'entry');
+      clearResults();
+      showConfirmation('Visitor admitted successfully');
+      document.getElementById('code-field').value = '';
+    }
+  } catch (err) {
+    alert('Connection error. Try again.');
+  }
+}
+
+// ── CHECKOUT ──
+async function checkoutVisitor() {
+  if (!currentPass) return;
+  try {
+    const res = await fetch(`${SERVER}/api/exit/${currentPass}`, { method: 'POST' });
+    const data = await res.json();
+    if (data.success) {
+      addLog(currentPass, 'exit');
+      clearResults();
+      showConfirmation('Visitor checked out successfully');
+      document.getElementById('code-field').value = '';
+    }
+  } catch (err) {
+    alert('Connection error. Try again.');
+  }
+}
+
+// ── HELPERS ──
+function showDenied(reason, code) {
+  document.getElementById('denied-reason').textContent = reason;
+  document.getElementById('denied-code').textContent = code;
+  document.getElementById('card-denied').classList.add('show');
+}
+
+function clearResults() {
+  document.getElementById('card-entry').classList.remove('show');
+  document.getElementById('card-exit').classList.remove('show');
+  document.getElementById('card-denied').classList.remove('show');
+}
+
+function showLoading(show) {
+  document.getElementById('loading').className = show ? 'loading show' : 'loading';
+}
+
+function showConfirmation(msg) {
+  const div = document.createElement('div');
+  div.style.cssText = 'background:#0d2e1a;color:#22c55e;padding:14px;border-radius:8px;text-align:center;font-weight:500;margin-bottom:12px;';
+  div.textContent = '✓ ' + msg;
+  document.querySelector('.content').insertBefore(div, document.querySelector('.log-section'));
+  setTimeout(() => div.remove(), 3000);
+}
+
+function addLog(code, status) {
+  const list = document.getElementById('log-list');
+  const item = document.createElement('div');
+  item.className = 'log-item';
+  const time = new Date().toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit' });
+  item.innerHTML = `<span class="log-name">${code}</span><span class="log-status ${status}">${status} · ${time}</span>`;
+  list.insertBefore(item, list.firstChild);
+  if (list.children.length > 5) list.removeChild(list.lastChild);
+}
+</script>
+</body>
+</html>
