@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#080808">
+<title>GatePass · Gate Dashboard</title>
+<link rel="manifest" href="/manifest.json">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #080808;
+  color: #f0ede8;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* HEADER */
+.header {
+  background: #111;
+  padding: 14px 16px;
+  border-bottom: 1px solid #1e1e1e;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-left { display: flex; flex-direction: column; gap: 2px; }
+.header-estate { font-size: 13px; font-weight: 600; letter-spacing: 0.3px; }
+.header-gate { font-size: 11px; color: #666; }
+
+.header-right { display: flex; align-items: center; gap: 10px; }
+
+.sync-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  transition: background 0.3s;
+}
+.sync-dot.offline { background: #f0a500; }
+
+.duty-badge {
+  font-size: 10px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #0d2e1a;
+  color: #22c55e;
+  border: 1px solid #166534;
+  letter-spacing: 0.3px;
+}
+
+/* TABS */
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: #111;
+  border-bottom: 1px solid #1e1e1e;
+}
+
+.tab {
+  padding: 11px;
+  text-align: center;
+  font-size: 13px;
+  color: #555;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+  user-select: none;
+}
+
+.tab.active { color: #f0ede8; border-bottom-color: #22c55e; }
+
+/* CONTENT */
+.content { padding: 14px; max-width: 480px; margin: 0 auto; }
+
+/* SCAN PANEL */
+.scan-box {
+  background: #111;
+  border-radius: 10px;
+  border: 1px solid #1e1e1e;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+#reader { width: 100%; }
+
+.scan-hint {
+  padding: 10px;
+  text-align: center;
+  font-size: 12px;
+  color: #555;
+}
+
+.primary-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  transition: opacity 0.2s;
+}
+
+.primary-btn:active { opacity: 0.8; }
+.btn-green { background: #166534; color: #f0ede8; }
+.btn-red-soft { background: #3d1515; color: #f87171; }
+
+/* CODE INPUT */
+.code-input-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.code-input {
+  flex: 1;
+  padding: 14px;
+  background: #111;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  color: #f0ede8;
+  font-size: 20px;
+  letter-spacing: 3px;
+  font-weight: 600;
+  text-transform: uppercase;
+  transition: border-color 0.2s;
+}
+
+.code-input:focus { outline: none; border-color: #444; }
+.code-input::placeholder { color: #333; letter-spacing: 1px; font-size: 13px; font-weight: 400; }
+
+.check-btn {
+  padding: 14px 18px;
+  background: #166534;
+  color: #f0ede8;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* RESULT CARDS */
+.result-card {
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 12px;
+  display: none;
+}
+
+.result-card.show { display: block; }
+
+.result-header {
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.result-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.result-label { font-size: 13px; font-weight: 600; letter-spacing: 0.3px; }
+
+.result-body { padding: 16px; background: #111; }
+
+.visitor-name { font-size: 20px; font-weight: 600; margin-bottom: 2px; line-height: 1.2; }
+.visitor-unit { font-size: 12px; color: #666; margin-bottom: 14px; }
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 7px 0;
+  border-bottom: 1px solid #1a1a1a;
+  font-size: 12px;
+}
+
+.detail-row:last-of-type { border-bottom: none; }
+.detail-key { color: #555; }
+.detail-val { font-weight: 500; color: #f0ede8; text-align: right; max-width: 60%; }
+
+.action-btn {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 14px;
+  transition: opacity 0.2s;
+}
+
+.action-btn:active { opacity: 0.8; }
+.btn-admit { background: #166534; color: #f0ede8; }
+.btn-checkout { background: #1e3a5f; color: #f0ede8; }
+.btn-standing { background: #2d1f5e; color: #c4b5fd; }
+
+/* CARD VARIANTS */
+.card-entry .result-header { background: #0d2e1a; }
+.card-entry .result-dot { background: #22c55e; }
+.card-entry .result-label { color: #22c55e; }
+
+.card-exit .result-header { background: #0c1f3a; }
+.card-exit .result-dot { background: #60a5fa; }
+.card-exit .result-label { color: #60a5fa; }
+
+.card-standing .result-header { background: #1e1535; }
+.card-standing .result-dot { background: #a78bfa; }
+.card-standing .result-label { color: #a78bfa; }
+
+.card-denied .result-header { background: #2d0a0a; }
+.card-denied .result-dot { background: #ef4444; }
+.card-denied .result-label { color: #ef4444; }
+
+/* LOADING */
+.loading {
+  text-align: center;
+  padding: 20px;
+  color: #555;
+  font-size: 13px;
+  display: none;
+}
+.loading.show { display: block; }
+
+/* CONFIRMATION TOAST */
+.toast {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 10px;
+  display: none;
+  text-align: center;
+}
+.toast.show { display: block; }
+.toast-success { background: #0d2e1a; color: #22c55e; border: 1px solid #166534; }
+.toast-error { background: #2d0a0a; color: #f87171; border: 1px solid #7f1d1d; }
+
+/* INCIDENT BUTTON */
+.incident-btn {
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  color: #f0a500;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 12px;
+  transition: background 0.2s;
+}
+.incident-btn:active { background: #1a1000; }
+
+/* INCIDENT MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  z-index: 200;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+}
+.modal-overlay.show { display: flex; }
+
+.modal {
+  background: #111;
+  border-radius: 16px 16px 0 0;
+  border-top: 1px solid #222;
+  padding: 20px 16px 32px;
+  width: 100%;
+  max-width: 480px;
+}
+
+.modal-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #f0a500;
+}
+
+.modal-label {
+  font-size: 11px;
+  color: #666;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  margin-top: 12px;
+}
+
+.modal-textarea {
+  width: 100%;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  color: #f0ede8;
+  font-size: 14px;
+  padding: 12px;
+  resize: none;
+  height: 90px;
+  font-family: inherit;
+}
+
+.modal-textarea:focus { outline: none; border-color: #444; }
+
+.severity-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.severity-btn {
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  border: 1px solid #2a2a2a;
+  background: #1a1a1a;
+  color: #666;
+  transition: all 0.15s;
+}
+
+.severity-btn.selected-low { background: #0d2e1a; color: #22c55e; border-color: #166534; }
+.severity-btn.selected-medium { background: #1a1000; color: #f0a500; border-color: #854f0b; }
+.severity-btn.selected-high { background: #2d0a0a; color: #ef4444; border-color: #7f1d1d; }
+
+.modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
+
+.modal-cancel {
+  padding: 13px;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  color: #666;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.modal-submit {
+  padding: 13px;
+  background: #854f0b;
+  border: none;
+  border-radius: 8px;
+  color: #f0ede8;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* LOG */
+.log-section { margin-top: 6px; }
+.log-title {
+  font-size: 10px;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.log-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #111;
+  border-radius: 6px;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.log-name { color: #aaa; }
+.log-badge {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+.log-entry { background: #0d2e1a; color: #22c55e; }
+.log-exit { background: #0c1f3a; color: #60a5fa; }
+.log-denied { background: #2d0a0a; color: #ef4444; }
+.log-standing { background: #1e1535; color: #a78bfa; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="header-estate" id="estate-name">GatePass</div>
+    <div class="header-gate" id="gate-label">Loading...</div>
+  </div>
+  <div class="header-right">
+    <div class="sync-dot" id="sync-dot" title="Online"></div>
+    <div class="duty-badge">On duty</div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" id="tab-scan" onclick="switchTab('scan')">Scan QR</div>
+  <div class="tab" id="tab-code" onclick="switchTab('code')">Enter Code</div>
+</div>
+
+<div class="content">
+
+  <!-- SCAN PANEL -->
+  <div id="scan-panel">
+    <div class="scan-box">
+      <div id="reader"></div>
+      <div class="scan-hint" id="scan-hint">Camera will open here</div>
+    </div>
+    <button class="primary-btn btn-green" id="start-btn" onclick="startScan()">Start Camera Scanner</button>
+    <button class="primary-btn btn-red-soft" id="stop-btn" onclick="stopScan()" style="display:none;">Stop Scanner</button>
+  </div>
+
+  <!-- CODE PANEL -->
+  <div id="code-panel" style="display:none;">
+    <div class="code-input-row">
+      <input
+        class="code-input"
+        id="code-field"
+        placeholder="BE-0000"
+        maxlength="8"
+        oninput="formatCode(this)"
+        onkeydown="if(event.key==='Enter') verifyCode()"
+        autocomplete="off"
+        autocorrect="off"
+        spellcheck="false"
+      />
+      <button class="check-btn" onclick="verifyCode()">Check</button>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- LOADING -->
+  <div class="loading" id="loading">Checking pass...</div>
+
+  <!-- RESULT: ENTRY -->
+  <div class="result-card card-entry" id="card-entry">
+    <div class="result-header">
+      <div class="result-dot"></div>
+      <div class="result-label">Valid — Admit visitor</div>
+    </div>
+    <div class="result-body">
+      <div class="visitor-name" id="entry-name"></div>
+      <div class="visitor-unit" id="entry-unit"></div>
+      <div class="detail-row">
+        <span class="detail-key">Pass code</span>
+        <span class="detail-val" id="entry-code"></span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-key">Valid until</span>
+        <span class="detail-val" id="entry-valid"></span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-key">Issued for</span>
+        <span class="detail-val" id="entry-house"></span>
+      </div>
+      <button class="action-btn btn-admit" onclick="admitVisitor()">Admit visitor</button>
+    </div>
+  </div>
+
+  <!-- RESULT: EXIT -->
+  <div class="result-card card-exit" id="card-exit">
+    <div class="result-header">
+      <div class="result-dot"></div>
+      <div class="result-label">Inside estate — Check out</div>
+    </div>
+    <div class="result-body">
+      <div class="visitor-name" id="exit-name"></div>
+      <div class="visitor-unit" id="exit-unit"></div>
+      <div class="detail-row">
+        <span class="detail-key">Pass code</span>
+        <span class="detail-val" id="exit-code"></span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-key">Entered at</span>
+        <span class="detail-val" id="exit-entry-time"></span>
+      </div>
+      <button class="action-btn btn-checkout" onclick="checkoutVisitor()">Check out visitor</button>
+    </div>
+  </div>
+
+  <!-- RESULT: STANDING -->
+  <div class="result-card card-standing" id="card-standing">
+    <div class="result-header">
+      <div class="result-dot"></div>
+      <div class="result-label">Standing access — Admit</div>
+    </div>
+    <div class="result-body">
+      <div class="visitor-name" id="standing-name"></div>
+      <div class="visitor-unit" id="standing-unit"></div>
+      <div class="detail-row">
+        <span class="detail-key">Pass code</span>
+        <span class="detail-val" id="standing-code"></span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-key">Relationship</span>
+        <span class="detail-val" id="standing-rel"></span>
+      </div>
+      <button class="action-btn btn-standing" onclick="admitStanding()">Admit — standing pass</button>
+    </div>
+  </div>
+
+  <!-- RESULT: DENIED -->
+  <div class="result-card card-denied" id="card-denied">
+    <div class="result-header">
+      <div class="result-dot"></div>
+      <div class="result-label">Access Denied</div>
+    </div>
+    <div class="result-body">
+      <div class="visitor-name" id="denied-reason" style="font-size:15px; color:#ef4444;"></div>
+      <div class="visitor-unit" id="denied-code"></div>
+      <div class="detail-row">
+        <span class="detail-key">Action required</span>
+        <span class="detail-val">Call resident to re-issue pass</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- INCIDENT BUTTON -->
+  <button class="incident-btn" onclick="openIncident()">⚑ Report incident at this gate</button>
+
+  <!-- LOG -->
+  <div class="log-section">
+    <div class="log-title">Shift activity</div>
+    <div id="log-list"></div>
+  </div>
+
+</div>
+
+<!-- INCIDENT MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-title">⚑ Report gate incident</div>
+    <div class="modal-label">What happened?</div>
+    <textarea class="modal-textarea" id="incident-desc" placeholder="Describe the incident clearly..."></textarea>
+    <div class="modal-label">Severity</div>
+    <div class="severity-row">
+      <div class="severity-btn selected-low" id="sev-low" onclick="setSeverity('low')">Low</div>
+      <div class="severity-btn" id="sev-medium" onclick="setSeverity('medium')">Medium</div>
+      <div class="severity-btn" id="sev-high" onclick="setSeverity('high')">High</div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeIncident()">Cancel</button>
+      <button class="modal-submit" onclick="submitIncident()">Submit report</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SERVER = 'https://gatepass-bamishile-production.up.railway.app';
+
+// Read URL params
+const params = new URLSearchParams(window.location.search);
+const GATE_ID = params.get('gate') || 'main';
+const ESTATE_ID = params.get('estate') || '';
+
+const GATE_NAMES = {
+  main: 'Main Gate — Bamishile Entrance',
+  community: 'Community Street Gate',
+};
+
+let currentPass = null;
+let scanner = null;
+let scannerRunning = false;
+let selectedSeverity = 'low';
+let isOnline = navigator.onLine;
+
+// ── INIT ──
+document.getElementById('gate-label').textContent = GATE_NAMES[GATE_ID] || `Gate — ${GATE_ID}`;
+
+window.addEventListener('online', () => { isOnline = true; updateSyncDot(); });
+window.addEventListener('offline', () => { isOnline = false; updateSyncDot(); });
+
+function updateSyncDot() {
+  const dot = document.getElementById('sync-dot');
+  dot.classList.toggle('offline', !isOnline);
+  dot.title = isOnline ? 'Online' : 'Offline — using cached data';
+}
+
+// ── TAB SWITCHING ──
+function switchTab(tab) {
+  document.getElementById('tab-scan').classList.toggle('active', tab === 'scan');
+  document.getElementById('tab-code').classList.toggle('active', tab === 'code');
+  document.getElementById('scan-panel').style.display = tab === 'scan' ? 'block' : 'none';
+  document.getElementById('code-panel').style.display = tab === 'code' ? 'block' : 'none';
+  clearResults();
+  if (tab === 'code') {
+    if (scannerRunning) stopScan();
+    setTimeout(() => document.getElementById('code-field').focus(), 100);
+  }
+}
+
+// ── FORMAT CODE ──
+function formatCode(el) {
+  let v = el.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (v.length > 2 && !v.includes('-')) v = v.slice(0,2) + '-' + v.slice(2);
+  el.value = v.slice(0,8);
+  if (v.replace('-','').length >= 6) verifyCode();
+}
+
+// ── QR SCANNER ──
+function startScan() {
+  document.getElementById('start-btn').style.display = 'none';
+  document.getElementById('stop-btn').style.display = 'block';
+  document.getElementById('scan-hint').textContent = 'Point camera at QR code';
+
+  scanner = new Html5Qrcode('reader');
+  scanner.start(
+    { facingMode: 'environment' },
+    { fps: 10, qrbox: { width: 240, height: 240 } },
+    (decodedText) => {
+      stopScan();
+      verify(decodedText.trim().toUpperCase());
+    },
+    () => {}
+  ).catch(err => {
+    showToast('Camera access denied. Use Enter Code tab.', 'error');
+    stopScan();
+  });
+  scannerRunning = true;
+}
+
+function stopScan() {
+  if (scanner && scannerRunning) {
+    scanner.stop().catch(() => {});
+    scannerRunning = false;
+  }
+  document.getElementById('start-btn').style.display = 'block';
+  document.getElementById('stop-btn').style.display = 'none';
+  document.getElementById('scan-hint').textContent = 'Camera stopped';
+}
+
+// ── VERIFY FROM CODE INPUT ──
+function verifyCode() {
+  const code = document.getElementById('code-field').value.trim().toUpperCase();
+  if (code.length < 6) return;
+  verify(code);
+}
+
+// ── CORE VERIFY ──
+async function verify(passCode) {
+  clearResults();
+  showLoading(true);
+  currentPass = passCode;
+
+  try {
+    const res = await fetch(`${SERVER}/api/verify/${passCode}?gate=${GATE_ID}`);
+    const data = await res.json();
+    showLoading(false);
+    handleResult(data, passCode);
+  } catch (err) {
+    showLoading(false);
+    showDenied('Connection error — check network', passCode);
+  }
+}
+
+// ── HANDLE RESULT ──
+function handleResult(data, passCode) {
+  if (!data.valid) {
+    showDenied(data.reason || 'Invalid pass', passCode);
+    addLog(passCode, 'denied');
+    return;
+  }
+
+  const pass = data.pass;
+
+  if (data.action === 'ENTRY') {
+    const validTo = new Date(pass.valid_to).toLocaleTimeString('en-NG', {
+      hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Lagos'
+    });
+    document.getElementById('entry-name').textContent = pass.visitor_name;
+    document.getElementById('entry-unit').textContent = `Visiting ${pass.house_number}`;
+    document.getElementById('entry-code').textContent = passCode;
+    document.getElementById('entry-valid').textContent = `Today until ${validTo}`;
+    document.getElementById('entry-house').textContent = pass.house_number;
+    document.getElementById('card-entry').classList.add('show');
+  }
+
+  if (data.action === 'EXIT') {
+    const entryTime = pass.entry_time
+      ? new Date(pass.entry_time).toLocaleTimeString('en-NG', {
+          hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Lagos'
+        })
+      : 'Unknown';
+    document.getElementById('exit-name').textContent = pass.visitor_name;
+    document.getElementById('exit-unit').textContent = `Visiting ${pass.house_number}`;
+    document.getElementById('exit-code').textContent = passCode;
+    document.getElementById('exit-entry-time').textContent = entryTime;
+    document.getElementById('card-exit').classList.add('show');
+  }
+
+  if (data.action === 'STANDING') {
+    document.getElementById('standing-name').textContent = pass.visitor_name;
+    document.getElementById('standing-unit').textContent = `Visiting ${pass.house_number}`;
+    document.getElementById('standing-code').textContent = passCode;
+    document.getElementById('standing-rel').textContent = pass.relationship || 'Regular visitor';
+    document.getElementById('card-standing').classList.add('show');
+  }
+}
+
+// ── ADMIT ──
+async function admitVisitor() {
+  if (!currentPass) return;
+  try {
+    const res = await fetch(`${SERVER}/api/entry/${currentPass}?gate=${GATE_ID}`, { method: 'POST' });
+    const data = await res.json();
+    if (data.success) {
+      addLog(currentPass, 'entry');
+      clearResults();
+      showToast('Visitor admitted successfully', 'success');
+      document.getElementById('code-field').value = '';
+    }
+  } catch {
+    showToast('Connection error. Try again.', 'error');
+  }
+}
+
+// ── ADMIT STANDING ──
+async function admitStanding() {
+  addLog(currentPass, 'standing');
+  clearResults();
+  showToast('Standing pass — visitor admitted', 'success');
+  document.getElementById('code-field').value = '';
+}
+
+// ── CHECKOUT ──
+async function checkoutVisitor() {
+  if (!currentPass) return;
+  try {
+    const res = await fetch(`${SERVER}/api/exit/${currentPass}?gate=${GATE_ID}`, { method: 'POST' });
+    const data = await res.json();
+    if (data.success) {
+      addLog(currentPass, 'exit');
+      clearResults();
+      showToast('Visitor checked out successfully', 'success');
+      document.getElementById('code-field').value = '';
+    }
+  } catch {
+    showToast('Connection error. Try again.', 'error');
+  }
+}
+
+// ── INCIDENT ──
+function openIncident() {
+  document.getElementById('incident-desc').value = '';
+  setSeverity('low');
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function closeIncident() {
+  document.getElementById('modal-overlay').classList.remove('show');
+}
+
+function setSeverity(level) {
+  selectedSeverity = level;
+  ['low','medium','high'].forEach(l => {
+    const btn = document.getElementById(`sev-${l}`);
+    btn.className = 'severity-btn';
+    if (l === level) btn.classList.add(`selected-${l}`);
+  });
+}
+
+async function submitIncident() {
+  const desc = document.getElementById('incident-desc').value.trim();
+  if (!desc) {
+    showToast('Please describe the incident', 'error');
+    return;
+  }
+
+  try {
+    await fetch(`${SERVER}/api/incident`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        estate_id: ESTATE_ID,
+        gate_id: GATE_ID,
+        description: desc,
+        severity: selectedSeverity,
+        reported_by: `Guard · ${GATE_NAMES[GATE_ID] || GATE_ID}`,
+      }),
+    });
+    closeIncident();
+    showToast('Incident reported to security command', 'success');
+  } catch {
+    showToast('Could not submit. Try again.', 'error');
+  }
+}
+
+// ── HELPERS ──
+function showDenied(reason, code) {
+  document.getElementById('denied-reason').textContent = reason;
+  document.getElementById('denied-code').textContent = code;
+  document.getElementById('card-denied').classList.add('show');
+}
+
+function clearResults() {
+  ['card-entry','card-exit','card-standing','card-denied'].forEach(id => {
+    document.getElementById(id).classList.remove('show');
+  });
+  const toast = document.getElementById('toast');
+  toast.classList.remove('show');
+}
+
+function showLoading(show) {
+  document.getElementById('loading').className = show ? 'loading show' : 'loading';
+}
+
+function showToast(msg, type) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = `toast show toast-${type}`;
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+function addLog(code, status) {
+  const list = document.getElementById('log-list');
+  const item = document.createElement('div');
+  item.className = 'log-item';
+  const time = new Date().toLocaleTimeString('en-NG', {
+    hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Lagos'
+  });
+  const badges = {
+    entry: '<span class="log-badge log-entry">admitted</span>',
+    exit: '<span class="log-badge log-exit">exited</span>',
+    denied: '<span class="log-badge log-denied">denied</span>',
+    standing: '<span class="log-badge log-standing">standing</span>',
+  };
+  item.innerHTML = `<span class="log-name">${code} · ${time}</span>${badges[status] || ''}`;
+  list.insertBefore(item, list.firstChild);
+  if (list.children.length > 8) list.removeChild(list.lastChild);
+}
+
+// Close modal on overlay tap
+document.getElementById('modal-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeIncident();
+});
+</script>
+</body>
+</html>
