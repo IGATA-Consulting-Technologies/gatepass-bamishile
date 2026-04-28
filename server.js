@@ -1,6 +1,6 @@
 // ================================================
 // GATEPASS · SERVER v2.0 · MULTI-TENANT
-// Built by IGATA Consulting Technologies
+// Powered by IGATA Consulting Technologies
 // ================================================
 
 const express = require('express');
@@ -797,7 +797,7 @@ app.get('/', (req, res) => {
     system: 'GatePass',
     version: '2.0',
     status: 'online',
-    built_by: 'IGATA Consulting Technologies',
+    powered_by: 'IGATA Consulting Technologies',
   });
 });
 
