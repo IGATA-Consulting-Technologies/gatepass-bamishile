@@ -119,8 +119,24 @@ body {
 /* CODE INPUT */
 .code-input-row {
   display: flex;
-  gap: 8px;
+  gap: 0;
   margin-bottom: 12px;
+}
+
+.code-prefix {
+  padding: 14px 12px;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  color: #22c55e;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  user-select: none;
 }
 
 .code-input {
@@ -128,24 +144,24 @@ body {
   padding: 14px;
   background: #111;
   border: 1px solid #2a2a2a;
-  border-radius: 8px;
+  border-radius: 0 0 0 0;
   color: #f0ede8;
-  font-size: 20px;
-  letter-spacing: 3px;
-  font-weight: 600;
-  text-transform: uppercase;
+  font-size: 24px;
+  letter-spacing: 6px;
+  font-weight: 700;
   transition: border-color 0.2s;
+  min-width: 0;
 }
 
 .code-input:focus { outline: none; border-color: #444; }
-.code-input::placeholder { color: #333; letter-spacing: 1px; font-size: 13px; font-weight: 400; }
+.code-input::placeholder { color: #333; letter-spacing: 2px; font-size: 18px; font-weight: 400; }
 
 .check-btn {
   padding: 14px 18px;
   background: #166534;
   color: #f0ede8;
   border: none;
-  border-radius: 8px;
+  border-radius: 0 8px 8px 0;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -431,12 +447,14 @@ body {
   <!-- CODE PANEL -->
   <div id="code-panel" style="display:none;">
     <div class="code-input-row">
+      <div class="code-prefix" id="code-prefix">BE-</div>
       <input
         class="code-input"
         id="code-field"
-        placeholder="BE-0000"
-        maxlength="8"
-        oninput="formatCode(this)"
+        placeholder="0000"
+        maxlength="4"
+        inputmode="numeric"
+        oninput="this.value=this.value.replace(/[^0-9]/g,''); if(this.value.length===4) verifyCode()"
         onkeydown="if(event.key==='Enter') verifyCode()"
         autocomplete="off"
         autocorrect="off"
@@ -573,6 +591,9 @@ const params = new URLSearchParams(window.location.search);
 const GATE_ID = params.get('gate') || 'main';
 const ESTATE_ID = params.get('estate') || 'f4f8e8f2-4fe2-44a8-bbf9-fcae62cd37ad';
 
+// Pass prefix from URL or default to BE
+const PASS_PREFIX = params.get('prefix') || 'BE';
+
 const GATE_NAMES = {
   main: 'Main Gate — Bamishile Entrance',
   community: 'Community Street Gate',
@@ -586,6 +607,7 @@ let isOnline = navigator.onLine;
 
 // ── INIT ──
 document.getElementById('gate-label').textContent = GATE_NAMES[GATE_ID] || `Gate — ${GATE_ID}`;
+document.getElementById('code-prefix').textContent = `${PASS_PREFIX}-`;
 
 window.addEventListener('online', () => { isOnline = true; updateSyncDot(); });
 window.addEventListener('offline', () => { isOnline = false; updateSyncDot(); });
@@ -607,14 +629,6 @@ function switchTab(tab) {
     if (scannerRunning) stopScan();
     setTimeout(() => document.getElementById('code-field').focus(), 100);
   }
-}
-
-// ── FORMAT CODE ──
-function formatCode(el) {
-  let v = el.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-  if (v.length > 2 && !v.includes('-')) v = v.slice(0,2) + '-' + v.slice(2);
-  el.value = v.slice(0,8);
-  if (v.replace('-','').length >= 6) verifyCode();
 }
 
 // ── QR SCANNER ──
@@ -651,9 +665,10 @@ function stopScan() {
 
 // ── VERIFY FROM CODE INPUT ──
 function verifyCode() {
-  const code = document.getElementById('code-field').value.trim().toUpperCase();
-  if (code.length < 6) return;
-  verify(code);
+  const digits = document.getElementById('code-field').value.trim();
+  if (digits.length < 4) return;
+  const prefix = document.getElementById('code-prefix').textContent.trim();
+  verify(`${prefix}${digits}`);
 }
 
 // ── CORE VERIFY ──
