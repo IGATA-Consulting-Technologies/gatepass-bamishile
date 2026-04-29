@@ -701,7 +701,63 @@ app.get('/api/admin/gates', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+// ================================================
+// ADMIN AUTH
+// ================================================
+app.post('/api/admin/auth', async (req, res) => {
+  const { email, password, estate_id } = req.body;
 
+  try {
+    // Check against estate-specific credentials in database
+    const { data: estate } = await supabase
+      .from('estates')
+      .select('*')
+      .eq('id', estate_id)
+      .eq('is_active', true)
+      .single();
+
+    if (!estate) {
+      return res.json({ success: false, reason: 'Estate not found' });
+    }
+
+    // Check master override first (IGATA super admin)
+    const masterPassword = process.env.ADMIN_PASSWORD;
+    const masterEmail = process.env.ADMIN_EMAIL;
+
+    if (email === masterEmail && password === masterPassword) {
+      return res.json({
+        success: true,
+        role: 'superadmin',
+        estate: estate.name,
+      });
+    }
+
+    // Check estate-specific credentials
+    if (
+      estate.admin_email &&
+      estate.admin_password &&
+      email === estate.admin_email &&
+      password === estate.admin_password
+    ) {
+      return res.json({
+        success: true,
+        role: 'admin',
+        estate: estate.name,
+      });
+    }
+
+    // Fallback: check env variables for Bamishile pilot
+    if (email === masterEmail && password === masterPassword) {
+      return res.json({ success: true, role: 'admin', estate: estate.name });
+    }
+
+    return res.json({ success: false, reason: 'Invalid credentials' });
+
+  } catch (err) {
+    console.error('Auth error:', err);
+    res.status(500).json({ success: false, reason: 'Server error' });
+  }
+});
 // ================================================
 // WEEKLY REPORT
 // ================================================
