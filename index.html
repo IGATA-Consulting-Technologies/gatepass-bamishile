@@ -629,7 +629,7 @@ function startScan() {
     { fps: 10, qrbox: { width: 240, height: 240 } },
     (decodedText) => {
       stopScan();
-      verify(decodedText.trim().toUpperCase());
+      setTimeout(() => verify(decodedText.trim().toUpperCase()), 600);
     },
     () => {}
   ).catch(err => {
