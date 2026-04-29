@@ -423,6 +423,38 @@ app.post('/api/entry/:passCode', async (req, res) => {
       .eq('pass_code', passCode);
 
     await writeLog(passCode, 'entry', `Gate-${gateId}`, `${pass.visitor_name} admitted`, pass.estate_id, gateId);
+    // Notify resident on entry
+    try {
+      const { data: resident } = await supabase
+        .from('residents')
+        .select('whatsapp_number')
+        .eq('id', pass.resident_id)
+        .single();
+
+      if (resident) {
+        const { data: estate } = await supabase
+          .from('estates')
+          .select('name')
+          .eq('id', pass.estate_id)
+          .single();
+
+        const gateNames = { main: 'Main Gate', community: 'Community Street Gate' };
+        const gateName = gateNames[gateId] || gateId;
+        const time = new Date().toLocaleTimeString('en-NG', {
+          hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Lagos'
+        });
+        const date = new Date().toLocaleDateString('en-NG', {
+          weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Africa/Lagos'
+        });
+        await sendWhatsApp(
+          resident.whatsapp_number,
+          `GatePass Notification\n\nYour visitor ${pass.visitor_name} has been admitted at the ${gateName}.\n\n${estate.name} · ${date} · ${time}`
+        );
+      }
+    } catch (e) {
+      console.log('Resident entry notification failed — continuing');
+    }
+
     res.json({ success: true, message: `${pass.visitor_name} admitted successfully` });
 
   } catch (err) {
