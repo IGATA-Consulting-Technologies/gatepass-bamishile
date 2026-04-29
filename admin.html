@@ -9,8 +9,8 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: #080808;
-  color: #f0ede8;
+  background: #f8f9fa;
+  color: #111;
   min-height: 100vh;
 }
 
@@ -21,85 +21,156 @@ body {
   align-items: center;
   justify-content: center;
   padding: 24px;
+  background: #f8f9fa;
 }
 
 .login-card {
-  background: #111;
-  border: 1px solid #1e1e1e;
-  border-radius: 12px;
-  padding: 40px 32px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 48px 40px;
   width: 100%;
-  max-width: 380px;
+  max-width: 400px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
 }
 
-.login-logo {
-  font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 4px;
-  letter-spacing: -0.5px;
-}
-
-.login-logo span { color: #22c55e; }
-
-.login-sub {
-  font-size: 12px;
-  color: #555;
+.login-logo-mark {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   margin-bottom: 32px;
 }
 
-.form-label {
+.login-gp {
+  width: 48px;
+  height: 48px;
+}
+
+.login-brand {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-brand-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.login-brand-name span { color: #166534; }
+
+.login-brand-sub {
   font-size: 11px;
-  color: #666;
+  color: #888;
   letter-spacing: 1px;
-  text-transform: uppercase;
+  margin-top: 3px;
+}
+
+.login-heading {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111;
+  margin-bottom: 6px;
+}
+
+.login-sub {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 28px;
+}
+
+.form-label {
+  font-size: 12px;
+  color: #555;
+  font-weight: 500;
   margin-bottom: 6px;
   display: block;
 }
 
 .form-input {
   width: 100%;
-  padding: 12px 14px;
-  background: #1a1a1a;
-  border: 1px solid #2a2a2a;
+  padding: 11px 14px;
+  background: #fff;
+  border: 1px solid #d1d5db;
   border-radius: 8px;
-  color: #f0ede8;
+  color: #111;
   font-size: 14px;
   margin-bottom: 16px;
   transition: border-color 0.2s;
 }
 
-.form-input:focus { outline: none; border-color: #444; }
+.form-input:focus { outline: none; border-color: #166534; }
+
+.password-wrap {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.password-wrap .form-input {
+  margin-bottom: 0;
+  padding-right: 44px;
+}
+
+.eye-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eye-btn:hover { color: #166534; }
 
 .login-btn {
   width: 100%;
-  padding: 13px;
+  padding: 12px;
   background: #166534;
-  color: #f0ede8;
+  color: #fff;
   border: none;
   border-radius: 8px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: background 0.2s;
 }
 
-.login-btn:hover { opacity: 0.9; }
+.login-btn:hover { background: #14532d; }
 .login-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .login-error {
   font-size: 12px;
-  color: #ef4444;
+  color: #dc2626;
   margin-top: 12px;
   text-align: center;
   display: none;
+  padding: 10px;
+  background: #fef2f2;
+  border-radius: 6px;
+  border: 1px solid #fecaca;
 }
 
-/* CONSOLE LAYOUT */
-.console { display: none; min-height: 100vh; }
+.login-footer {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 11px;
+  color: #bbb;
+}
+
+/* CONSOLE */
+.console { display: none; min-height: 100vh; background: #f8f9fa; }
 
 .topbar {
-  background: #111;
-  border-bottom: 1px solid #1e1e1e;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
   padding: 0 24px;
   height: 56px;
   display: flex;
@@ -111,19 +182,34 @@ body {
 }
 
 .topbar-brand {
-  font-size: 15px;
-  font-weight: 700;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
-.topbar-brand span { color: #22c55e; }
+.topbar-gp {
+  width: 32px;
+  height: 32px;
+}
+
+.topbar-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111;
+  letter-spacing: -0.3px;
+}
+
+.topbar-name span { color: #166534; }
 
 .topbar-estate {
   font-size: 12px;
-  color: #555;
-  margin-left: 8px;
+  color: #888;
+  padding: 3px 10px;
+  background: #f0fdf4;
+  border-radius: 20px;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+  font-weight: 500;
 }
 
 .topbar-right {
@@ -134,27 +220,27 @@ body {
 
 .topbar-time {
   font-size: 12px;
-  color: #555;
+  color: #888;
   font-family: monospace;
 }
 
 .logout-btn {
   font-size: 12px;
-  color: #555;
+  color: #888;
   background: none;
-  border: 1px solid #2a2a2a;
-  padding: 6px 12px;
+  border: 1px solid #e5e7eb;
+  padding: 6px 14px;
   border-radius: 6px;
   cursor: pointer;
-  transition: color 0.2s;
+  transition: all 0.2s;
 }
 
-.logout-btn:hover { color: #f0ede8; }
+.logout-btn:hover { color: #dc2626; border-color: #fecaca; }
 
 /* NAV */
 .nav {
-  background: #0d0d0d;
-  border-bottom: 1px solid #1a1a1a;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
   padding: 0 24px;
   display: flex;
   gap: 0;
@@ -162,33 +248,34 @@ body {
 }
 
 .nav-item {
-  padding: 12px 16px;
+  padding: 13px 18px;
   font-size: 13px;
-  color: #555;
+  color: #888;
   cursor: pointer;
   border-bottom: 2px solid transparent;
   white-space: nowrap;
   transition: color 0.2s;
   user-select: none;
+  font-weight: 500;
 }
 
-.nav-item:hover { color: #aaa; }
-.nav-item.active { color: #f0ede8; border-bottom-color: #22c55e; }
+.nav-item:hover { color: #111; }
+.nav-item.active { color: #166534; border-bottom-color: #166534; }
 
 /* PAGES */
 .page { display: none; padding: 24px; max-width: 1100px; margin: 0 auto; }
 .page.active { display: block; }
 
-/* PAGE HEADER */
 .page-title {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 700;
   margin-bottom: 4px;
+  color: #111;
 }
 
 .page-sub {
-  font-size: 12px;
-  color: #555;
+  font-size: 13px;
+  color: #888;
   margin-bottom: 24px;
 }
 
@@ -201,30 +288,32 @@ body {
 }
 
 .stat-card {
-  background: #111;
-  border: 1px solid #1e1e1e;
-  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
   padding: 20px;
 }
 
 .stat-label {
   font-size: 11px;
-  color: #555;
-  letter-spacing: 1px;
+  color: #888;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
   margin-bottom: 8px;
+  font-weight: 500;
 }
 
 .stat-value {
-  font-size: 28px;
-  font-weight: 600;
+  font-size: 32px;
+  font-weight: 700;
   line-height: 1;
   margin-bottom: 4px;
+  color: #111;
 }
 
-.stat-sub { font-size: 11px; color: #444; }
+.stat-sub { font-size: 11px; color: #aaa; }
 
-/* GRID 2 COL */
+/* GRID */
 .grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -234,32 +323,33 @@ body {
 
 /* PANEL */
 .panel {
-  background: #111;
-  border: 1px solid #1e1e1e;
-  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
   overflow: hidden;
+  margin-bottom: 16px;
 }
 
 .panel-header {
   padding: 14px 18px;
-  border-bottom: 1px solid #1a1a1a;
+  border-bottom: 1px solid #f3f4f6;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background: #fff;
 }
 
 .panel-title {
   font-size: 13px;
   font-weight: 600;
+  color: #111;
 }
 
 .panel-count {
   font-size: 11px;
-  color: #555;
+  color: #888;
   font-family: monospace;
 }
-
-.panel-body { padding: 0; }
 
 /* TABLE */
 .data-table { width: 100%; border-collapse: collapse; }
@@ -268,22 +358,24 @@ body {
   padding: 10px 16px;
   text-align: left;
   font-size: 10px;
-  color: #444;
-  letter-spacing: 1px;
+  color: #888;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
-  border-bottom: 1px solid #1a1a1a;
-  font-weight: 500;
+  border-bottom: 1px solid #f3f4f6;
+  font-weight: 600;
+  background: #fafafa;
 }
 
 .data-table td {
   padding: 12px 16px;
   font-size: 12px;
-  border-bottom: 1px solid #141414;
+  border-bottom: 1px solid #f9fafb;
   vertical-align: middle;
+  color: #111;
 }
 
 .data-table tr:last-child td { border-bottom: none; }
-.data-table tr:hover td { background: #141414; }
+.data-table tr:hover td { background: #f9fafb; }
 
 /* BADGES */
 .badge {
@@ -291,88 +383,92 @@ body {
   font-size: 10px;
   padding: 3px 8px;
   border-radius: 10px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
-.badge-green { background: #0d2e1a; color: #22c55e; }
-.badge-blue { background: #0c1f3a; color: #60a5fa; }
-.badge-amber { background: #1a1000; color: #f0a500; }
-.badge-red { background: #2d0a0a; color: #ef4444; }
-.badge-gray { background: #1a1a1a; color: #666; }
-.badge-purple { background: #1e1535; color: #a78bfa; }
+.badge-green { background: #dcfce7; color: #166534; }
+.badge-blue { background: #dbeafe; color: #1d4ed8; }
+.badge-amber { background: #fef3c7; color: #92400e; }
+.badge-red { background: #fee2e2; color: #dc2626; }
+.badge-gray { background: #f3f4f6; color: #6b7280; }
+.badge-purple { background: #ede9fe; color: #7c3aed; }
 
 /* ACTION BUTTONS */
 .action-link {
   font-size: 11px;
-  color: #555;
+  color: #888;
   cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 4px;
-  border: 1px solid #2a2a2a;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
   background: none;
-  transition: color 0.2s;
+  transition: all 0.2s;
+  font-weight: 500;
 }
 
-.action-link:hover { color: #f0ede8; }
-.action-link.danger:hover { color: #ef4444; border-color: #7f1d1d; }
+.action-link:hover { color: #111; border-color: #d1d5db; }
+.action-link.danger:hover { color: #dc2626; border-color: #fecaca; background: #fef2f2; }
 
 /* EMPTY STATE */
 .empty-state {
   padding: 40px;
   text-align: center;
-  color: #333;
+  color: #bbb;
   font-size: 13px;
 }
 
-/* GATE URLS */
+/* GATE URL CARDS */
 .gate-url-card {
-  background: #111;
-  border: 1px solid #1e1e1e;
-  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
   padding: 20px;
   margin-bottom: 12px;
 }
 
 .gate-url-label {
-  font-size: 11px;
-  color: #555;
+  font-size: 10px;
+  color: #888;
   letter-spacing: 1px;
   text-transform: uppercase;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+  font-weight: 600;
 }
 
 .gate-url-name {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   margin-bottom: 10px;
+  color: #111;
 }
 
 .gate-url-box {
-  background: #1a1a1a;
-  border: 1px solid #2a2a2a;
+  background: #f8f9fa;
+  border: 1px solid #e5e7eb;
   border-radius: 6px;
   padding: 10px 12px;
   font-size: 11px;
-  color: #888;
+  color: #555;
   font-family: monospace;
   word-break: break-all;
   margin-bottom: 10px;
 }
 
 .copy-btn {
-  font-size: 11px;
-  padding: 6px 14px;
-  background: #1a1a1a;
-  border: 1px solid #2a2a2a;
+  font-size: 12px;
+  padding: 7px 16px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
   border-radius: 6px;
-  color: #888;
+  color: #166534;
   cursor: pointer;
-  transition: color 0.2s;
+  font-weight: 500;
+  transition: all 0.2s;
 }
 
-.copy-btn:hover { color: #f0ede8; }
+.copy-btn:hover { background: #dcfce7; }
 
-/* ADD RESIDENT FORM */
+/* FORM */
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -384,33 +480,35 @@ body {
 
 .inline-input {
   padding: 10px 12px;
-  background: #1a1a1a;
-  border: 1px solid #2a2a2a;
-  border-radius: 6px;
-  color: #f0ede8;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  color: #111;
   font-size: 13px;
   width: 100%;
+  transition: border-color 0.2s;
 }
 
-.inline-input:focus { outline: none; border-color: #444; }
+.inline-input:focus { outline: none; border-color: #166534; }
 
 .submit-btn {
-  padding: 10px 20px;
+  padding: 10px 22px;
   background: #166534;
-  color: #f0ede8;
+  color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
-.submit-btn:hover { opacity: 0.9; }
+.submit-btn:hover { background: #14532d; }
 
 /* INCIDENT CARDS */
 .incident-card {
   padding: 16px 18px;
-  border-bottom: 1px solid #141414;
+  border-bottom: 1px solid #f3f4f6;
 }
 
 .incident-card:last-child { border-bottom: none; }
@@ -422,16 +520,16 @@ body {
   margin-bottom: 6px;
 }
 
-.incident-title { font-size: 13px; font-weight: 500; }
-.incident-meta { font-size: 11px; color: #555; margin-top: 4px; }
+.incident-title { font-size: 13px; font-weight: 500; color: #111; }
+.incident-meta { font-size: 11px; color: #888; margin-top: 4px; }
 
-/* LOADING SPINNER */
+/* SPINNER */
 .spinner {
   display: inline-block;
   width: 16px;
   height: 16px;
-  border: 2px solid #333;
-  border-top-color: #22c55e;
+  border: 2px solid #e5e7eb;
+  border-top-color: #166534;
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
 }
@@ -455,11 +553,12 @@ body {
   font-size: 13px;
   font-weight: 500;
   animation: slideIn 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-.toast-success { background: #0d2e1a; color: #22c55e; border: 1px solid #166534; }
-.toast-error { background: #2d0a0a; color: #ef4444; border: 1px solid #7f1d1d; }
+.toast-success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+.toast-error { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
 
 /* RESPONSIVE */
 @media (max-width: 768px) {
@@ -467,42 +566,68 @@ body {
   .grid-2 { grid-template-columns: 1fr; }
   .form-row { grid-template-columns: 1fr; }
   .page { padding: 16px; }
-}
-
-@media (max-width: 480px) {
-  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .topbar-estate { display: none; }
 }
 </style>
 </head>
 <body>
 
-<!-- LOGIN SCREEN -->
+<!-- LOGIN -->
 <div class="login-wrap" id="login-screen">
   <div class="login-card">
-    <div class="login-logo">Gate<span>Pass</span></div>
-    <div class="login-sub">Estate Admin Console</div>
+
+    <div class="login-logo-mark">
+      <svg class="login-gp" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="20" cy="24" r="13" stroke="#166534" stroke-width="4" stroke-linecap="round" stroke-dasharray="70 12"/>
+        <line x1="20" y1="24" x2="33" y2="24" stroke="#166534" stroke-width="4" stroke-linecap="round"/>
+        <line x1="33" y1="12" x2="33" y2="38" stroke="#166534" stroke-width="4" stroke-linecap="round"/>
+        <path d="M33 12 Q44 12 44 20 Q44 28 33 28" stroke="#166534" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+      </svg>
+      <div class="login-brand">
+        <div class="login-brand-name">Gate<span>Pass</span></div>
+        <div class="login-brand-sub">ESTATE ACCESS</div>
+      </div>
+    </div>
+
+    <div class="login-heading">Admin sign in</div>
+    <div class="login-sub">Sign in to manage your estate</div>
 
     <label class="form-label">Email address</label>
     <input class="form-input" type="email" id="login-email" placeholder="admin@estate.com"
-      onkeydown="if(event.key==='Enter') doLogin()"/>
+      onkeydown="if(event.key==='Enter') document.getElementById('login-password').focus()"/>
 
     <label class="form-label">Password</label>
-    <input class="form-input" type="password" id="login-password" placeholder="••••••••"
-      onkeydown="if(event.key==='Enter') doLogin()"/>
+    <div class="password-wrap">
+      <input class="form-input" type="password" id="login-password" placeholder="••••••••"
+        onkeydown="if(event.key==='Enter') doLogin()"/>
+      <button class="eye-btn" onclick="togglePassword()" id="eye-btn" type="button">
+        <svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+      </button>
+    </div>
 
     <button class="login-btn" id="login-btn" onclick="doLogin()">Sign in</button>
     <div class="login-error" id="login-error">Incorrect email or password</div>
+
+    <div class="login-footer">Powered by IGATA Consulting Technologies</div>
   </div>
 </div>
 
-<!-- ADMIN CONSOLE -->
+<!-- CONSOLE -->
 <div class="console" id="console">
 
-  <!-- TOPBAR -->
   <div class="topbar">
     <div class="topbar-brand">
-      Gate<span>Pass</span>
-      <span class="topbar-estate" id="topbar-estate"></span>
+      <svg class="topbar-gp" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="20" cy="24" r="13" stroke="#166534" stroke-width="4" stroke-linecap="round" stroke-dasharray="70 12"/>
+        <line x1="20" y1="24" x2="33" y2="24" stroke="#166534" stroke-width="4" stroke-linecap="round"/>
+        <line x1="33" y1="12" x2="33" y2="38" stroke="#166534" stroke-width="4" stroke-linecap="round"/>
+        <path d="M33 12 Q44 12 44 20 Q44 28 33 28" stroke="#166534" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+      </svg>
+      <div class="topbar-name">Gate<span>Pass</span></div>
+      <div class="topbar-estate" id="topbar-estate"></div>
     </div>
     <div class="topbar-right">
       <div class="topbar-time" id="topbar-time"></div>
@@ -510,16 +635,15 @@ body {
     </div>
   </div>
 
-  <!-- NAV -->
   <div class="nav">
-    <div class="nav-item active" onclick="showPage('dashboard')">Dashboard</div>
-    <div class="nav-item" onclick="showPage('residents')">Residents</div>
-    <div class="nav-item" onclick="showPage('passes')">Live passes</div>
-    <div class="nav-item" onclick="showPage('incidents')">Incidents</div>
-    <div class="nav-item" onclick="showPage('gates')">Gate URLs</div>
+    <div class="nav-item active" onclick="showPage('dashboard', this)">Dashboard</div>
+    <div class="nav-item" onclick="showPage('residents', this)">Residents</div>
+    <div class="nav-item" onclick="showPage('passes', this)">Live passes</div>
+    <div class="nav-item" onclick="showPage('incidents', this)">Incidents</div>
+    <div class="nav-item" onclick="showPage('gates', this)">Gate URLs</div>
   </div>
 
-  <!-- DASHBOARD PAGE -->
+  <!-- DASHBOARD -->
   <div class="page active" id="page-dashboard">
     <div class="page-title">Operations dashboard</div>
     <div class="page-sub" id="dash-date">Loading...</div>
@@ -532,92 +656,62 @@ body {
       </div>
       <div class="stat-card">
         <div class="stat-label">Inside now</div>
-        <div class="stat-value" id="stat-inside" style="color:#22c55e;">—</div>
+        <div class="stat-value" id="stat-inside" style="color:#166534;">—</div>
         <div class="stat-sub">Currently in estate</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Completed</div>
-        <div class="stat-value" id="stat-completed" style="color:#60a5fa;">—</div>
-        <div class="stat-sub">Full entry + exit today</div>
+        <div class="stat-value" id="stat-completed" style="color:#1d4ed8;">—</div>
+        <div class="stat-sub">Full entry and exit</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Denied</div>
-        <div class="stat-value" id="stat-denied" style="color:#ef4444;">—</div>
+        <div class="stat-value" id="stat-denied" style="color:#dc2626;">—</div>
         <div class="stat-sub">Turned away today</div>
       </div>
     </div>
 
     <div class="grid-2">
-      <!-- INSIDE NOW -->
       <div class="panel">
         <div class="panel-header">
           <div class="panel-title">Currently inside estate</div>
           <div class="panel-count" id="inside-count">0 visitors</div>
         </div>
-        <div class="panel-body">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Visitor</th>
-                <th>House</th>
-                <th>Gate</th>
-                <th>Entry</th>
-              </tr>
-            </thead>
-            <tbody id="inside-tbody">
-              <tr><td colspan="4" class="empty-state">No visitors inside</td></tr>
-            </tbody>
-          </table>
-        </div>
+        <table class="data-table">
+          <thead><tr><th>Visitor</th><th>House</th><th>Gate</th><th>Entry</th></tr></thead>
+          <tbody id="inside-tbody"><tr><td colspan="4" class="empty-state">No visitors inside</td></tr></tbody>
+        </table>
       </div>
 
-      <!-- RECENT ACTIVITY -->
       <div class="panel">
         <div class="panel-header">
           <div class="panel-title">Recent gate activity</div>
           <div class="panel-count" id="activity-count">0 events</div>
         </div>
-        <div class="panel-body">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Pass</th>
-                <th>Action</th>
-                <th>Gate</th>
-                <th>Time</th>
-              </tr>
-            </thead>
-            <tbody id="activity-tbody">
-              <tr><td colspan="4" class="empty-state">No activity today</td></tr>
-            </tbody>
-          </table>
-        </div>
+        <table class="data-table">
+          <thead><tr><th>Pass</th><th>Action</th><th>Gate</th><th>Time</th></tr></thead>
+          <tbody id="activity-tbody"><tr><td colspan="4" class="empty-state">No activity today</td></tr></tbody>
+        </table>
       </div>
     </div>
 
-    <!-- OPEN INCIDENTS -->
     <div class="panel">
       <div class="panel-header">
         <div class="panel-title">Open incidents</div>
         <div class="panel-count" id="incident-dash-count">0 open</div>
       </div>
-      <div class="panel-body" id="incident-dash-body">
-        <div class="empty-state">No open incidents</div>
-      </div>
+      <div id="incident-dash-body"><div class="empty-state">No open incidents</div></div>
     </div>
   </div>
 
-  <!-- RESIDENTS PAGE -->
+  <!-- RESIDENTS -->
   <div class="page" id="page-residents">
     <div class="page-title">Resident management</div>
     <div class="page-sub">Add, view and manage registered households</div>
 
-    <!-- ADD RESIDENT FORM -->
     <div class="panel" style="margin-bottom:16px;">
-      <div class="panel-header">
-        <div class="panel-title">Add new resident</div>
-      </div>
-      <div class="panel-body" style="padding:18px;">
+      <div class="panel-header"><div class="panel-title">Add new resident</div></div>
+      <div style="padding:18px;">
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">House number</label>
@@ -646,80 +740,48 @@ body {
       </div>
     </div>
 
-    <!-- RESIDENTS TABLE -->
     <div class="panel">
       <div class="panel-header">
         <div class="panel-title">Registered residents</div>
         <div class="panel-count" id="residents-count">Loading...</div>
       </div>
-      <div class="panel-body">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>House</th>
-              <th>Name</th>
-              <th>WhatsApp</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="residents-tbody">
-            <tr><td colspan="6" class="empty-state"><div class="spinner"></div></td></tr>
-          </tbody>
-        </table>
-      </div>
+      <table class="data-table">
+        <thead><tr><th>House</th><th>Name</th><th>WhatsApp</th><th>Role</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody id="residents-tbody"><tr><td colspan="6" class="empty-state"><div class="spinner"></div></td></tr></tbody>
+      </table>
     </div>
   </div>
 
-  <!-- LIVE PASSES PAGE -->
+  <!-- LIVE PASSES -->
   <div class="page" id="page-passes">
     <div class="page-title">Live passes</div>
-    <div class="page-sub">All passes created today across both gates</div>
-
+    <div class="page-sub">All passes created today</div>
     <div class="panel">
       <div class="panel-header">
         <div class="panel-title">Today's passes</div>
         <div class="panel-count" id="passes-count">Loading...</div>
       </div>
-      <div class="panel-body">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Pass code</th>
-              <th>Visitor</th>
-              <th>House</th>
-              <th>Gate</th>
-              <th>Status</th>
-              <th>Entry</th>
-              <th>Exit</th>
-            </tr>
-          </thead>
-          <tbody id="passes-tbody">
-            <tr><td colspan="7" class="empty-state"><div class="spinner"></div></td></tr>
-          </tbody>
-        </table>
-      </div>
+      <table class="data-table">
+        <thead><tr><th>Pass code</th><th>Visitor</th><th>House</th><th>Gate</th><th>Status</th><th>Entry</th><th>Exit</th></tr></thead>
+        <tbody id="passes-tbody"><tr><td colspan="7" class="empty-state"><div class="spinner"></div></td></tr></tbody>
+      </table>
     </div>
   </div>
 
-  <!-- INCIDENTS PAGE -->
+  <!-- INCIDENTS -->
   <div class="page" id="page-incidents">
     <div class="page-title">Incident log</div>
     <div class="page-sub">All reported incidents at both gates</div>
-
     <div class="panel">
       <div class="panel-header">
         <div class="panel-title">All incidents</div>
         <div class="panel-count" id="incidents-count">Loading...</div>
       </div>
-      <div class="panel-body" id="incidents-body">
-        <div class="empty-state"><div class="spinner"></div></div>
-      </div>
+      <div id="incidents-body"><div class="empty-state"><div class="spinner"></div></div></div>
     </div>
   </div>
 
-  <!-- GATE URLS PAGE -->
+  <!-- GATE URLS -->
   <div class="page" id="page-gates">
     <div class="page-title">Gate dashboards</div>
     <div class="page-sub">Share these links with your security guards</div>
@@ -738,16 +800,14 @@ body {
       <button class="copy-btn" onclick="copyUrl('url-community')">Copy link</button>
     </div>
 
-    <div class="panel" style="margin-top:16px;">
-      <div class="panel-header">
-        <div class="panel-title">How to set up a guard's phone</div>
-      </div>
-      <div class="panel-body" style="padding:18px;">
-        <ol style="font-size:13px; color:#888; line-height:2; padding-left:18px;">
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title">How to set up a guard's phone</div></div>
+      <div style="padding:18px;">
+        <ol style="font-size:13px;color:#555;line-height:2.2;padding-left:18px;">
           <li>Copy the gate link above</li>
           <li>Send it to the guard's WhatsApp</li>
           <li>Guard opens the link in their phone browser</li>
-          <li>Guard taps the browser menu and selects <strong style="color:#f0ede8;">Add to Home Screen</strong></li>
+          <li>Guard taps the browser menu and selects <strong style="color:#111;">Add to Home Screen</strong></li>
           <li>GatePass installs as an app icon — no app store needed</li>
           <li>Guard opens the icon at the start of every shift</li>
         </ol>
@@ -757,20 +817,29 @@ body {
 
 </div>
 
-<!-- TOAST CONTAINER -->
 <div class="toast-wrap" id="toast-wrap"></div>
 
 <script>
 const SERVER = 'https://gatepass-bamishile-production.up.railway.app';
 const ESTATE_ID = 'f4f8e8f2-4fe2-44a8-bbf9-fcae62cd37ad';
 const ESTATE_NAME = 'Bamishile Estate';
-const ADMIN_EMAIL = 'bamishile.estate@gmail.com';
 const BASE_URL = 'https://gatepass-bamishile.netlify.app';
 
 let dashboardTimer = null;
 let clockTimer = null;
 
-// ── LOGIN ──
+function togglePassword() {
+  const input = document.getElementById('login-password');
+  const icon = document.getElementById('eye-icon');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+  } else {
+    input.type = 'password';
+    icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+  }
+}
+
 async function doLogin() {
   const email = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value;
@@ -814,11 +883,10 @@ function doLogout() {
   document.getElementById('console').style.display = 'none';
   document.getElementById('login-email').value = '';
   document.getElementById('login-password').value = '';
-  if (dashboardTimer) clearInterval(dashboardTimer);
+  if (dashboardTimer) clearTimeout(dashboardTimer);
   if (clockTimer) clearInterval(clockTimer);
 }
 
-// ── CLOCK ──
 function startClock() {
   function tick() {
     document.getElementById('topbar-time').textContent =
@@ -831,125 +899,85 @@ function startClock() {
   clockTimer = setInterval(tick, 1000);
 }
 
-// ── NAV ──
-function showPage(page) {
-  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
-  event.target.classList.add('active');
+function showPage(page, el) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
   document.getElementById(`page-${page}`).classList.add('active');
-
   if (page === 'passes') loadPasses();
   if (page === 'incidents') loadIncidents();
 }
 
-// ── DASHBOARD ──
 async function loadDashboard() {
   try {
     const res = await fetch(`${SERVER}/api/admin/dashboard?estate_id=${ESTATE_ID}`);
     const data = await res.json();
 
-    const now = new Date().toLocaleDateString('en-NG', {
-      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
-      timeZone: 'Africa/Lagos'
+    document.getElementById('dash-date').textContent = new Date().toLocaleDateString('en-NG', {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Africa/Lagos'
     });
-    document.getElementById('dash-date').textContent = now;
 
     document.getElementById('stat-total').textContent = data.summary.total_today;
     document.getElementById('stat-inside').textContent = data.summary.inside_now;
     document.getElementById('stat-completed').textContent = data.summary.completed_today;
     document.getElementById('stat-denied').textContent = data.summary.denied_today;
 
-    // Inside now table
     const insideTbody = document.getElementById('inside-tbody');
     document.getElementById('inside-count').textContent = `${data.inside_now.length} visitor${data.inside_now.length !== 1 ? 's' : ''}`;
-
-    if (data.inside_now.length === 0) {
-      insideTbody.innerHTML = '<tr><td colspan="4" class="empty-state">No visitors inside</td></tr>';
-    } else {
-      insideTbody.innerHTML = data.inside_now.map(p => `
-        <tr>
+    insideTbody.innerHTML = data.inside_now.length === 0
+      ? '<tr><td colspan="4" class="empty-state">No visitors inside</td></tr>'
+      : data.inside_now.map(p => `<tr>
           <td>${p.visitor_name}</td>
           <td>${p.house_number}</td>
           <td><span class="badge badge-blue">${p.gate_id || 'main'}</span></td>
           <td>${formatTime(p.entry_time)}</td>
-        </tr>
-      `).join('');
-    }
+        </tr>`).join('');
 
-    // Activity log
     const actTbody = document.getElementById('activity-tbody');
     document.getElementById('activity-count').textContent = `${data.recent_logs.length} events`;
-
-    if (data.recent_logs.length === 0) {
-      actTbody.innerHTML = '<tr><td colspan="4" class="empty-state">No activity today</td></tr>';
-    } else {
-      actTbody.innerHTML = data.recent_logs.slice(0, 15).map(l => `
-        <tr>
-          <td><span style="font-family:monospace;font-size:11px;">${l.pass_code}</span></td>
+    actTbody.innerHTML = data.recent_logs.length === 0
+      ? '<tr><td colspan="4" class="empty-state">No activity today</td></tr>'
+      : data.recent_logs.slice(0, 15).map(l => `<tr>
+          <td><span style="font-family:monospace;font-size:11px;color:#555;">${l.pass_code}</span></td>
           <td>${actionBadge(l.action)}</td>
           <td><span class="badge badge-gray">${l.gate_id || 'main'}</span></td>
-          <td style="color:#555;">${formatTime(l.timestamp)}</td>
-        </tr>
-      `).join('');
-    }
+          <td style="color:#888;">${formatTime(l.timestamp)}</td>
+        </tr>`).join('');
 
-    // Open incidents
     const incBody = document.getElementById('incident-dash-body');
     document.getElementById('incident-dash-count').textContent = `${data.open_incidents.length} open`;
+    incBody.innerHTML = data.open_incidents.length === 0
+      ? '<div class="empty-state">No open incidents</div>'
+      : data.open_incidents.map(i => `
+          <div class="incident-card">
+            <div class="incident-header">
+              <div class="incident-title">${i.description}</div>
+              ${severityBadge(i.severity)}
+            </div>
+            <div class="incident-meta">${i.gate_id} gate · ${formatTime(i.created_at)} · ${i.reported_by}</div>
+          </div>`).join('');
 
-    if (data.open_incidents.length === 0) {
-      incBody.innerHTML = '<div class="empty-state">No open incidents</div>';
-    } else {
-      incBody.innerHTML = data.open_incidents.map(i => `
-        <div class="incident-card">
-          <div class="incident-header">
-            <div class="incident-title">${i.description}</div>
-            ${severityBadge(i.severity)}
-          </div>
-          <div class="incident-meta">${i.gate_id} · ${formatTime(i.created_at)} · ${i.reported_by}</div>
-        </div>
-      `).join('');
-    }
-
-  } catch (err) {
-    console.error('Dashboard error:', err);
-  }
-
+  } catch (err) { console.error('Dashboard error:', err); }
   dashboardTimer = setTimeout(loadDashboard, 30000);
 }
 
-// ── RESIDENTS ──
 async function loadResidents() {
   try {
     const res = await fetch(`${SERVER}/api/admin/residents?estate_id=${ESTATE_ID}`);
     const data = await res.json();
     const tbody = document.getElementById('residents-tbody');
     document.getElementById('residents-count').textContent = `${data.residents.length} registered`;
-
-    if (data.residents.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No residents registered</td></tr>';
-      return;
-    }
-
-    tbody.innerHTML = data.residents.map(r => `
-      <tr>
-        <td style="font-weight:500;">${r.house_number}</td>
-        <td>${r.resident_name}</td>
-        <td style="font-family:monospace;font-size:11px;color:#888;">+${r.whatsapp_number}</td>
-        <td><span class="badge badge-gray">${r.role || 'resident'}</span></td>
-        <td>${r.is_active
-          ? '<span class="badge badge-green">Active</span>'
-          : '<span class="badge badge-red">Inactive</span>'}</td>
-        <td>
-          <button class="action-link danger" onclick="toggleResident('${r.id}', ${r.is_active})">
-            ${r.is_active ? 'Deactivate' : 'Activate'}
-          </button>
-        </td>
-      </tr>
-    `).join('');
-  } catch (err) {
-    console.error('Residents error:', err);
-  }
+    tbody.innerHTML = data.residents.length === 0
+      ? '<tr><td colspan="6" class="empty-state">No residents registered</td></tr>'
+      : data.residents.map(r => `<tr>
+          <td style="font-weight:600;">${r.house_number}</td>
+          <td>${r.resident_name}</td>
+          <td style="font-family:monospace;font-size:11px;color:#888;">+${r.whatsapp_number}</td>
+          <td><span class="badge badge-gray">${r.role || 'resident'}</span></td>
+          <td>${r.is_active ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-red">Inactive</span>'}</td>
+          <td><button class="action-link danger" onclick="toggleResident('${r.id}', ${r.is_active})">${r.is_active ? 'Deactivate' : 'Activate'}</button></td>
+        </tr>`).join('');
+  } catch (err) { console.error('Residents error:', err); }
 }
 
 async function addResident() {
@@ -957,23 +985,12 @@ async function addResident() {
   const name = document.getElementById('r-name').value.trim();
   const phone = document.getElementById('r-phone').value.trim();
   const role = document.getElementById('r-role').value;
-
-  if (!house || !name || !phone) {
-    showToast('Please fill in all fields', 'error');
-    return;
-  }
-
+  if (!house || !name || !phone) { showToast('Please fill in all fields', 'error'); return; }
   try {
     const res = await fetch(`${SERVER}/api/admin/residents`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        estate_id: ESTATE_ID,
-        house_number: house,
-        resident_name: name,
-        whatsapp_number: phone,
-        role,
-      }),
+      body: JSON.stringify({ estate_id: ESTATE_ID, house_number: house, resident_name: name, whatsapp_number: phone, role }),
     });
     const data = await res.json();
     if (data.success) {
@@ -985,9 +1002,7 @@ async function addResident() {
     } else {
       showToast(data.error || 'Could not add resident', 'error');
     }
-  } catch {
-    showToast('Connection error', 'error');
-  }
+  } catch { showToast('Connection error', 'error'); }
 }
 
 async function toggleResident(id, currentStatus) {
@@ -999,131 +1014,78 @@ async function toggleResident(id, currentStatus) {
     });
     showToast(currentStatus ? 'Resident deactivated' : 'Resident activated', 'success');
     loadResidents();
-  } catch {
-    showToast('Connection error', 'error');
-  }
+  } catch { showToast('Connection error', 'error'); }
 }
 
-// ── LIVE PASSES ──
 async function loadPasses() {
   try {
     const res = await fetch(`${SERVER}/api/admin/dashboard?estate_id=${ESTATE_ID}`);
     const data = await res.json();
     const tbody = document.getElementById('passes-tbody');
-    const passes = data.inside_now.concat(
-      data.recent_logs
-        .filter(l => l.action === 'created')
-        .slice(0, 30)
-    );
-
     document.getElementById('passes-count').textContent = `${data.summary.total_today} today`;
-
-    if (data.summary.total_today === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No passes today</td></tr>';
-      return;
-    }
-
-    tbody.innerHTML = data.inside_now.map(p => `
-      <tr>
-        <td style="font-family:monospace;font-size:11px;">${p.pass_code}</td>
-        <td>${p.visitor_name}</td>
-        <td>${p.house_number}</td>
-        <td><span class="badge badge-gray">${p.gate_id || 'main'}</span></td>
-        <td>${statusBadge(p.status)}</td>
-        <td style="color:#888;">${formatTime(p.entry_time)}</td>
-        <td style="color:#888;">${formatTime(p.exit_time)}</td>
-      </tr>
-    `).join('');
-  } catch (err) {
-    console.error('Passes error:', err);
-  }
+    tbody.innerHTML = data.inside_now.length === 0
+      ? '<tr><td colspan="7" class="empty-state">No passes today</td></tr>'
+      : data.inside_now.map(p => `<tr>
+          <td style="font-family:monospace;font-size:11px;">${p.pass_code}</td>
+          <td>${p.visitor_name}</td>
+          <td>${p.house_number}</td>
+          <td><span class="badge badge-gray">${p.gate_id || 'main'}</span></td>
+          <td>${statusBadge(p.status)}</td>
+          <td style="color:#888;">${formatTime(p.entry_time)}</td>
+          <td style="color:#888;">${formatTime(p.exit_time)}</td>
+        </tr>`).join('');
+  } catch (err) { console.error('Passes error:', err); }
 }
 
-// ── INCIDENTS ──
 async function loadIncidents() {
   try {
     const res = await fetch(`${SERVER}/api/admin/dashboard?estate_id=${ESTATE_ID}`);
     const data = await res.json();
     const body = document.getElementById('incidents-body');
-    document.getElementById('incidents-count').textContent =
-      `${data.open_incidents.length} open`;
-
-    if (data.open_incidents.length === 0) {
-      body.innerHTML = '<div class="empty-state">No incidents reported</div>';
-      return;
-    }
-
-    body.innerHTML = data.open_incidents.map(i => `
-      <div class="incident-card">
-        <div class="incident-header">
-          <div>
-            <div class="incident-title">${i.description}</div>
-            <div class="incident-meta">${i.gate_id} gate · ${formatTime(i.created_at)} · Reported by: ${i.reported_by}</div>
-          </div>
-          <div style="display:flex;gap:8px;align-items:center;">
-            ${severityBadge(i.severity)}
-            <span class="badge badge-amber">${i.status}</span>
-          </div>
-        </div>
-      </div>
-    `).join('');
-  } catch (err) {
-    console.error('Incidents error:', err);
-  }
+    document.getElementById('incidents-count').textContent = `${data.open_incidents.length} open`;
+    body.innerHTML = data.open_incidents.length === 0
+      ? '<div class="empty-state">No incidents reported</div>'
+      : data.open_incidents.map(i => `
+          <div class="incident-card">
+            <div class="incident-header">
+              <div>
+                <div class="incident-title">${i.description}</div>
+                <div class="incident-meta">${i.gate_id} gate · ${formatTime(i.created_at)} · ${i.reported_by}</div>
+              </div>
+              <div style="display:flex;gap:8px;">${severityBadge(i.severity)}<span class="badge badge-amber">${i.status}</span></div>
+            </div>
+          </div>`).join('');
+  } catch (err) { console.error('Incidents error:', err); }
 }
 
-// ── GATE URLS ──
 function setGateUrls() {
-  const mainUrl = `${BASE_URL}?gate=main&estate=${ESTATE_ID}`;
-  const communityUrl = `${BASE_URL}?gate=community&estate=${ESTATE_ID}`;
-  document.getElementById('url-main').textContent = mainUrl;
-  document.getElementById('url-community').textContent = communityUrl;
+  document.getElementById('url-main').textContent = `${BASE_URL}?gate=main&estate=${ESTATE_ID}`;
+  document.getElementById('url-community').textContent = `${BASE_URL}?gate=community&estate=${ESTATE_ID}`;
 }
 
 function copyUrl(id) {
-  const text = document.getElementById(id).textContent;
-  navigator.clipboard.writeText(text).then(() => {
-    showToast('Link copied to clipboard', 'success');
-  });
+  navigator.clipboard.writeText(document.getElementById(id).textContent)
+    .then(() => showToast('Link copied to clipboard', 'success'));
 }
 
-// ── HELPERS ──
 function formatTime(iso) {
   if (!iso) return '—';
-  return new Date(iso).toLocaleTimeString('en-NG', {
-    hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Lagos'
-  });
+  return new Date(iso).toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Lagos' });
 }
 
 function actionBadge(action) {
-  const map = {
-    entry: '<span class="badge badge-green">entry</span>',
-    exit: '<span class="badge badge-blue">exit</span>',
-    denied: '<span class="badge badge-red">denied</span>',
-    created: '<span class="badge badge-gray">created</span>',
-    cancelled: '<span class="badge badge-amber">cancelled</span>',
-  };
-  return map[action] || `<span class="badge badge-gray">${action}</span>`;
+  const map = { entry: 'badge-green', exit: 'badge-blue', denied: 'badge-red', created: 'badge-gray', cancelled: 'badge-amber' };
+  return `<span class="badge ${map[action] || 'badge-gray'}">${action}</span>`;
 }
 
 function statusBadge(status) {
-  const map = {
-    active: '<span class="badge badge-green">active</span>',
-    checked_in: '<span class="badge badge-blue">inside</span>',
-    checked_out: '<span class="badge badge-gray">exited</span>',
-    cancelled: '<span class="badge badge-amber">cancelled</span>',
-    expired: '<span class="badge badge-red">expired</span>',
-  };
-  return map[status] || `<span class="badge badge-gray">${status}</span>`;
+  const map = { active: 'badge-green', checked_in: 'badge-blue', checked_out: 'badge-gray', cancelled: 'badge-amber', expired: 'badge-red' };
+  return `<span class="badge ${map[status] || 'badge-gray'}">${status}</span>`;
 }
 
 function severityBadge(severity) {
-  const map = {
-    low: '<span class="badge badge-green">low</span>',
-    medium: '<span class="badge badge-amber">medium</span>',
-    high: '<span class="badge badge-red">high</span>',
-  };
-  return map[severity] || `<span class="badge badge-gray">${severity}</span>`;
+  const map = { low: 'badge-green', medium: 'badge-amber', high: 'badge-red' };
+  return `<span class="badge ${map[severity] || 'badge-gray'}">${severity}</span>`;
 }
 
 function showToast(msg, type) {
