@@ -28,12 +28,7 @@ const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const SERVER_URL = process.env.SERVER_URL || 'https://gatepass-bamishile-production.up.railway.app';
 const PORT = process.env.PORT || 3000;
 
-const ws = require('ws');
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
-  realtime: {
-    transport: ws,
-  },
-});
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 const twilioClient = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
 // ================================================
@@ -1087,6 +1082,84 @@ app.post('/api/admin/auth', async (req, res) => {
   } catch (err) {
     console.error('Auth error:', err);
     res.status(500).json({ success: false, reason: 'Server error' });
+  }
+});
+
+// ================================================
+// ADMIN API — DELETE RESIDENT (permanent)
+// ================================================
+app.delete('/api/admin/residents/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    // Remove household members first
+    await supabase.from('household_members').delete().eq('primary_resident_id', id);
+    await supabase.from('household_invites').delete().eq('resident_id', id);
+    // Remove the resident
+    const { error } = await supabase.from('residents').delete().eq('id', id);
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Delete resident error:', err);
+    res.status(500).json({ success: false, error: 'Could not delete resident' });
+  }
+});
+
+// ================================================
+// ADMIN API — HOUSEHOLD MEMBERS LIST
+// ================================================
+app.get('/api/admin/household-members', async (req, res) => {
+  const { resident_id, estate_id } = req.query;
+  if (!resident_id || !estate_id) return res.status(400).json({ error: 'resident_id and estate_id required' });
+  try {
+    const { data, error } = await supabase
+      .from('household_members')
+      .select('*')
+      .eq('primary_resident_id', resident_id)
+      .eq('estate_id', estate_id)
+      .eq('is_active', true)
+      .order('created_at');
+    if (error) throw error;
+    res.json({ members: data || [] });
+  } catch (err) {
+    console.error('Household members error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ================================================
+// ADMIN API — REMOVE HOUSEHOLD MEMBER
+// ================================================
+app.delete('/api/admin/household-members/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const { error } = await supabase
+      .from('household_members')
+      .update({ is_active: false })
+      .eq('id', id);
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Remove member error:', err);
+    res.status(500).json({ success: false });
+  }
+});
+
+// ================================================
+// ADMIN API — CLEAR INCIDENT LOGS
+// ================================================
+app.delete('/api/admin/incidents/clear', async (req, res) => {
+  const { estate_id } = req.body;
+  if (!estate_id) return res.status(400).json({ error: 'estate_id required' });
+  try {
+    const { error } = await supabase
+      .from('incidents')
+      .delete()
+      .eq('estate_id', estate_id);
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Clear incidents error:', err);
+    res.status(500).json({ success: false });
   }
 });
 
