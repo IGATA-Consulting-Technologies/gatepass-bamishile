@@ -28,7 +28,12 @@ const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const SERVER_URL = process.env.SERVER_URL || 'https://gatepass-bamishile-production.up.railway.app';
 const PORT = process.env.PORT || 3000;
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+const ws = require('ws');
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
+  realtime: {
+    transport: ws,
+  },
+});
 const twilioClient = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
 // ================================================
