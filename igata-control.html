@@ -6,135 +6,139 @@
 <title>IGATA · GatePass Control</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e5e7eb; min-height: 100vh; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f9fa; color: #111; min-height: 100vh; }
 
 /* LOGIN */
-.login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; background: #0f1117; }
-.login-card { background: #1a1d27; border: 1px solid #2a2d3a; border-radius: 16px; padding: 48px 40px; width: 100%; max-width: 400px; }
+.login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; background: #f8f9fa; }
+.login-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 48px 40px; width: 100%; max-width: 400px; }
 .login-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; }
-.login-logo-text { font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
-.login-logo-text span { color: #22c55e; }
-.login-logo-sub { font-size: 10px; color: #555; letter-spacing: 2px; margin-top: 2px; }
-.login-heading { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 4px; }
-.login-sub { font-size: 12px; color: #555; margin-bottom: 28px; }
+.login-logo-text { font-size: 20px; font-weight: 800; color: #111; letter-spacing: -0.5px; }
+.login-logo-text span { color: #166534; }
+.login-logo-sub { font-size: 10px; color: #888; letter-spacing: 2px; margin-top: 2px; }
+.login-heading { font-size: 15px; font-weight: 600; color: #111; margin-bottom: 4px; }
+.login-sub { font-size: 12px; color: #888; margin-bottom: 28px; }
 .field-label { font-size: 11px; color: #6b7280; font-weight: 500; margin-bottom: 6px; display: block; letter-spacing: 0.3px; }
-.field-input { width: 100%; padding: 11px 14px; background: #0f1117; border: 1px solid #2a2d3a; border-radius: 8px; color: #e5e7eb; font-size: 14px; margin-bottom: 14px; transition: border-color 0.2s; }
-.field-input:focus { outline: none; border-color: #22c55e; }
-.login-btn { width: 100%; padding: 12px; background: #22c55e; color: #000; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.2s; margin-top: 8px; }
-.login-btn:hover { background: #16a34a; color: #fff; }
+.field-input { width: 100%; padding: 11px 14px; background: #f8f9fa; border: 1px solid #e5e7eb; border-radius: 8px; color: #111; font-size: 14px; margin-bottom: 14px; transition: border-color 0.2s; }
+.field-input:focus { outline: none; border-color: #166534; }
+.password-wrap { position: relative; margin-bottom: 0; }
+.password-wrap .field-input { margin-bottom: 0; padding-right: 44px; }
+.eye-btn { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #888; padding: 4px; display: flex; align-items: center; }
+.eye-btn:hover { color: #166534; }
+.login-btn { width: 100%; padding: 12px; background: #166534; color: #000; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.2s; margin-top: 8px; }
+.login-btn:hover { background: #14532d; color: #111; }
 .login-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .login-error { font-size: 12px; color: #f87171; margin-top: 12px; text-align: center; display: none; padding: 10px; background: rgba(239,68,68,0.1); border-radius: 6px; border: 1px solid rgba(239,68,68,0.2); }
-.login-footer { text-align: center; margin-top: 24px; font-size: 10px; color: #333; letter-spacing: 1px; text-transform: uppercase; }
+.login-footer { text-align: center; margin-top: 24px; font-size: 10px; color: #bbb; letter-spacing: 1px; text-transform: uppercase; }
 
 /* CONSOLE */
-.console { display: none; min-height: 100vh; background: #0f1117; }
-.topbar { background: #1a1d27; border-bottom: 1px solid #2a2d3a; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+.console { display: none; min-height: 100vh; background: #f8f9fa; }
+.topbar { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
 .topbar-left { display: flex; align-items: center; gap: 14px; }
-.topbar-logo { font-size: 15px; font-weight: 800; color: #fff; letter-spacing: -0.3px; }
-.topbar-logo span { color: #22c55e; }
-.topbar-badge { font-size: 10px; padding: 3px 10px; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); border-radius: 20px; color: #22c55e; font-weight: 600; letter-spacing: 0.5px; }
+.topbar-logo { font-size: 15px; font-weight: 800; color: #111; letter-spacing: -0.3px; }
+.topbar-logo span { color: #166534; }
+.topbar-badge { font-size: 10px; padding: 3px 10px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 20px; color: #166534; font-weight: 600; letter-spacing: 0.5px; }
 .topbar-right { display: flex; align-items: center; gap: 14px; }
-.topbar-time { font-size: 11px; color: #555; font-family: monospace; }
-.logout-btn { font-size: 11px; color: #6b7280; background: none; border: 1px solid #2a2d3a; padding: 5px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+.topbar-time { font-size: 11px; color: #888; font-family: monospace; }
+.logout-btn { font-size: 11px; color: #6b7280; background: none; border: 1px solid #e5e7eb; padding: 5px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
 .logout-btn:hover { color: #f87171; border-color: rgba(248,113,113,0.3); }
 
 /* NAV */
-.nav { background: #1a1d27; border-bottom: 1px solid #2a2d3a; padding: 0 24px; display: flex; overflow-x: auto; }
+.nav { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 0 24px; display: flex; overflow-x: auto; }
 .nav-item { padding: 13px 18px; font-size: 12px; color: #6b7280; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: color 0.2s; user-select: none; font-weight: 500; }
-.nav-item:hover { color: #e5e7eb; }
-.nav-item.active { color: #22c55e; border-bottom-color: #22c55e; }
+.nav-item:hover { color: #111; }
+.nav-item.active { color: #166534; border-bottom-color: #166534; }
 
 /* PAGES */
 .page { display: none; padding: 24px; max-width: 1200px; margin: 0 auto; }
 .page.active { display: block; }
-.page-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; color: #fff; }
-.page-sub { font-size: 12px; color: #555; margin-bottom: 24px; }
+.page-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; color: #111; }
+.page-sub { font-size: 12px; color: #888; margin-bottom: 24px; }
 
 /* STAT CARDS */
 .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
-.stat-card { background: #1a1d27; border: 1px solid #2a2d3a; border-radius: 12px; padding: 20px; }
-.stat-label { font-size: 10px; color: #555; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 8px; font-weight: 600; }
-.stat-value { font-size: 30px; font-weight: 700; line-height: 1; margin-bottom: 4px; color: #fff; }
-.stat-sub { font-size: 11px; color: #444; }
+.stat-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; }
+.stat-label { font-size: 10px; color: #888; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 8px; font-weight: 600; }
+.stat-value { font-size: 30px; font-weight: 700; line-height: 1; margin-bottom: 4px; color: #111; }
+.stat-sub { font-size: 11px; color: #aaa; }
 
 /* PANEL */
-.panel { background: #1a1d27; border: 1px solid #2a2d3a; border-radius: 12px; overflow: hidden; margin-bottom: 16px; }
-.panel-header { padding: 14px 18px; border-bottom: 1px solid #2a2d3a; display: flex; justify-content: space-between; align-items: center; }
-.panel-title { font-size: 12px; font-weight: 600; color: #e5e7eb; }
-.panel-count { font-size: 11px; color: #555; font-family: monospace; }
+.panel { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; margin-bottom: 16px; }
+.panel-header { padding: 14px 18px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; }
+.panel-title { font-size: 12px; font-weight: 600; color: #111; }
+.panel-count { font-size: 11px; color: #888; font-family: monospace; }
 
 /* TABLE */
 .data-table { width: 100%; border-collapse: collapse; }
-.data-table th { padding: 10px 16px; text-align: left; font-size: 10px; color: #555; letter-spacing: 0.8px; text-transform: uppercase; border-bottom: 1px solid #2a2d3a; font-weight: 600; background: #161820; }
-.data-table td { padding: 13px 16px; font-size: 12px; border-bottom: 1px solid #1e2130; vertical-align: middle; color: #e5e7eb; }
+.data-table th { padding: 10px 16px; text-align: left; font-size: 10px; color: #888; letter-spacing: 0.8px; text-transform: uppercase; border-bottom: 1px solid #e5e7eb; font-weight: 600; background: #fafafa; }
+.data-table td { padding: 13px 16px; font-size: 12px; border-bottom: 1px solid #f9fafb; vertical-align: middle; color: #111; }
 .data-table tr:last-child td { border-bottom: none; }
-.data-table tr:hover td { background: rgba(255,255,255,0.02); }
+.data-table tr:hover td { background: #f9fafb; }
 
 /* BADGES */
 .badge { display: inline-block; font-size: 10px; padding: 3px 8px; border-radius: 8px; font-weight: 600; }
-.badge-green { background: rgba(34,197,94,0.15); color: #22c55e; }
+.badge-green { background: rgba(34,197,94,0.15); color: #166534; }
 .badge-red { background: rgba(239,68,68,0.15); color: #f87171; }
 .badge-blue { background: rgba(59,130,246,0.15); color: #60a5fa; }
 .badge-amber { background: rgba(245,158,11,0.15); color: #fbbf24; }
-.badge-gray { background: rgba(107,114,128,0.2); color: #9ca3af; }
+.badge-gray { background: rgba(107,114,128,0.2); color: #555; }
 
 /* BUTTONS */
-.action-link { font-size: 11px; color: #6b7280; cursor: pointer; padding: 4px 10px; border-radius: 6px; border: 1px solid #2a2d3a; background: none; transition: all 0.2s; font-weight: 500; margin-right: 4px; }
-.action-link:hover { color: #e5e7eb; border-color: #3a3d4a; }
+.action-link { font-size: 11px; color: #6b7280; cursor: pointer; padding: 4px 10px; border-radius: 6px; border: 1px solid #e5e7eb; background: none; transition: all 0.2s; font-weight: 500; margin-right: 4px; }
+.action-link:hover { color: #111; border-color: #d1d5db; }
 .action-link.danger:hover { color: #f87171; border-color: rgba(248,113,113,0.3); background: rgba(239,68,68,0.05); }
-.action-link.primary { color: #22c55e; border-color: rgba(34,197,94,0.3); }
+.action-link.primary { color: #166534; border-color: rgba(34,197,94,0.3); }
 .action-link.primary:hover { background: rgba(34,197,94,0.1); }
-.submit-btn { padding: 10px 22px; background: #22c55e; color: #000; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
-.submit-btn:hover { background: #16a34a; color: #fff; }
-.secondary-btn { padding: 9px 18px; background: none; color: #6b7280; border: 1px solid #2a2d3a; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
-.secondary-btn:hover { color: #e5e7eb; border-color: #3a3d4a; }
+.submit-btn { padding: 10px 22px; background: #166534; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+.submit-btn:hover { background: #14532d; color: #111; }
+.secondary-btn { padding: 9px 18px; background: none; color: #6b7280; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+.secondary-btn:hover { color: #111; border-color: #d1d5db; }
 
 /* FORM */
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
 .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
 .form-group { display: flex; flex-direction: column; gap: 6px; }
-.inline-input { padding: 10px 12px; background: #0f1117; border: 1px solid #2a2d3a; border-radius: 8px; color: #e5e7eb; font-size: 13px; width: 100%; transition: border-color 0.2s; }
-.inline-input:focus { outline: none; border-color: #22c55e; }
-.inline-input::placeholder { color: #3a3d4a; }
+.inline-input { padding: 10px 12px; background: #f8f9fa; border: 1px solid #e5e7eb; border-radius: 8px; color: #111; font-size: 13px; width: 100%; transition: border-color 0.2s; }
+.inline-input:focus { outline: none; border-color: #166534; }
+.inline-input::placeholder { color: #aaa; }
 
 /* EMPTY */
-.empty-state { padding: 48px; text-align: center; color: #333; font-size: 13px; }
+.empty-state { padding: 48px; text-align: center; color: #bbb; font-size: 13px; }
 
 /* ESTATE CARD */
-.estate-card { padding: 18px; border-bottom: 1px solid #1e2130; transition: background 0.15s; }
+.estate-card { padding: 18px; border-bottom: 1px solid #f9fafb; transition: background 0.15s; }
 .estate-card:last-child { border-bottom: none; }
-.estate-card:hover { background: rgba(255,255,255,0.02); }
+.estate-card:hover { background: #f9fafb; }
 .estate-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
-.estate-name { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 3px; }
-.estate-meta { font-size: 11px; color: #555; }
+.estate-name { font-size: 14px; font-weight: 700; color: #111; margin-bottom: 3px; }
+.estate-meta { font-size: 11px; color: #888; }
 .estate-stats { display: flex; gap: 16px; margin-top: 8px; }
-.estate-stat { font-size: 11px; color: #555; }
-.estate-stat strong { color: #9ca3af; font-size: 13px; }
+.estate-stat { font-size: 11px; color: #888; }
+.estate-stat strong { color: #555; font-size: 13px; }
 
 /* REPORT SECTION */
-.report-card { background: #1a1d27; border: 1px solid #2a2d3a; border-radius: 12px; padding: 20px; margin-bottom: 12px; }
-.report-title { font-size: 13px; font-weight: 600; color: #e5e7eb; margin-bottom: 6px; }
-.report-desc { font-size: 12px; color: #555; margin-bottom: 14px; line-height: 1.6; }
+.report-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; margin-bottom: 12px; }
+.report-title { font-size: 13px; font-weight: 600; color: #111; margin-bottom: 6px; }
+.report-desc { font-size: 12px; color: #888; margin-bottom: 14px; line-height: 1.6; }
 
 /* CONFIRM */
-.confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 600; align-items: center; justify-content: center; padding: 20px; }
+.confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 600; align-items: center; justify-content: center; padding: 20px; }
 .confirm-overlay.open { display: flex; }
-.confirm-box { background: #1a1d27; border: 1px solid #2a2d3a; border-radius: 12px; padding: 28px; max-width: 380px; width: 100%; }
-.confirm-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: #fff; }
+.confirm-box { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 28px; max-width: 380px; width: 100%; }
+.confirm-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: #111; }
 .confirm-msg { font-size: 13px; color: #6b7280; margin-bottom: 24px; line-height: 1.6; }
 .confirm-btns { display: flex; gap: 10px; justify-content: flex-end; }
-.confirm-cancel { padding: 9px 18px; background: none; border: 1px solid #2a2d3a; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; color: #6b7280; }
-.confirm-cancel:hover { color: #e5e7eb; }
-.confirm-ok { padding: 9px 18px; background: #ef4444; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; color: #fff; }
+.confirm-cancel { padding: 9px 18px; background: none; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; color: #6b7280; }
+.confirm-cancel:hover { color: #111; }
+.confirm-ok { padding: 9px 18px; background: #ef4444; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; color: #111; }
 .confirm-ok:hover { background: #dc2626; }
 
 /* SPINNER / TOAST */
-.spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #2a2d3a; border-top-color: #22c55e; border-radius: 50%; animation: spin 0.6s linear infinite; }
+.spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #2a2d3a; border-top-color: #166534; border-radius: 50%; animation: spin 0.6s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .toast-wrap { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
 .toast { padding: 12px 18px; border-radius: 8px; font-size: 12px; font-weight: 500; animation: slideIn 0.2s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
 @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-.toast-success { background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+.toast-success { background: rgba(34,197,94,0.15); color: #166534; border: 1px solid rgba(34,197,94,0.3); }
 .toast-error { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
 .toast-info { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
 
@@ -152,10 +156,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   <div class="login-card">
     <div class="login-logo">
       <svg width="36" height="36" viewBox="0 0 48 48" fill="none">
-        <circle cx="20" cy="24" r="13" stroke="#22c55e" stroke-width="4" stroke-linecap="round" stroke-dasharray="70 12"/>
-        <line x1="20" y1="24" x2="33" y2="24" stroke="#22c55e" stroke-width="4" stroke-linecap="round"/>
-        <line x1="33" y1="12" x2="33" y2="38" stroke="#22c55e" stroke-width="4" stroke-linecap="round"/>
-        <path d="M33 12 Q44 12 44 20 Q44 28 33 28" stroke="#22c55e" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+        <circle cx="20" cy="24" r="13" stroke="#166534" stroke-width="4" stroke-linecap="round" stroke-dasharray="70 12"/>
+        <line x1="20" y1="24" x2="33" y2="24" stroke="#166534" stroke-width="4" stroke-linecap="round"/>
+        <line x1="33" y1="12" x2="33" y2="38" stroke="#166534" stroke-width="4" stroke-linecap="round"/>
+        <path d="M33 12 Q44 12 44 20 Q44 28 33 28" stroke="#166534" stroke-width="3.5" stroke-linecap="round" fill="none"/>
       </svg>
       <div>
         <div class="login-logo-text">IGATA <span>Control</span></div>
@@ -199,7 +203,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <div class="page-title">Platform overview</div>
     <div class="page-sub" id="overview-date">Loading...</div>
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-label">Active estates</div><div class="stat-value" id="stat-estates" style="color:#22c55e;">—</div><div class="stat-sub">Deployed tenants</div></div>
+      <div class="stat-card"><div class="stat-label">Active estates</div><div class="stat-value" id="stat-estates" style="color:#166534;">—</div><div class="stat-sub">Deployed tenants</div></div>
       <div class="stat-card"><div class="stat-label">Total residents</div><div class="stat-value" id="stat-residents">—</div><div class="stat-sub">Across all estates</div></div>
       <div class="stat-card"><div class="stat-label">Passes today</div><div class="stat-value" id="stat-passes" style="color:#60a5fa;">—</div><div class="stat-sub">All estates combined</div></div>
       <div class="stat-card"><div class="stat-label">Open incidents</div><div class="stat-value" id="stat-incidents" style="color:#fbbf24;">—</div><div class="stat-sub">Requires attention</div></div>
@@ -263,6 +267,21 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
             </select>
           </div>
         </div>
+        <div class="form-row" style="margin-bottom:12px;">
+          <div class="form-group">
+            <label class="field-label">Number of gates</label>
+            <select class="inline-input" id="e-gates">
+              <option value="1">1 gate</option>
+              <option value="2" selected>2 gates</option>
+              <option value="3">3 gates</option>
+              <option value="4">4 gates</option>
+            </select>
+          </div>
+          <div class="form-group" id="gate-names-group">
+            <label class="field-label">Gate names (comma separated)</label>
+            <input class="inline-input" id="e-gate-names" placeholder="e.g. Main Gate, Back Gate"/>
+          </div>
+        </div>
 
         <div style="border-top:1px solid #2a2d3a;margin:20px 0;padding-top:20px;">
           <div style="font-size:11px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:14px;">Admin credentials for this estate</div>
@@ -294,7 +313,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
           <li>Add the WhatsApp number to your Meta Business WhatsApp account</li>
           <li>Update the webhook URL in Twilio to handle the new number</li>
           <li>Share the admin email and password with the estate ExCo</li>
-          <li>ExCo logs into <code style="background:#0f1117;padding:2px 6px;border-radius:4px;color:#22c55e;">gatepass-bamishile.netlify.app/admin.html</code> and starts adding residents</li>
+          <li>ExCo logs into <code style="background:#0f1117;padding:2px 6px;border-radius:4px;color:#166534;">gatepass-bamishile.netlify.app/admin.html</code> and starts adding residents</li>
           <li>Residents message the WhatsApp number to create passes</li>
         </ol>
       </div>
@@ -352,6 +371,18 @@ const SERVER = 'https://gatepass-bamishile-production.up.railway.app';
 let masterPassword = '';
 let clockTimer = null;
 let confirmCallback = null;
+
+function togglePassword() {
+  const input = document.getElementById('login-password');
+  const icon = document.getElementById('eye-icon');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+  } else {
+    input.type = 'password';
+    icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+  }
+}
 
 async function doLogin() {
   const email = document.getElementById('login-email').value.trim();
@@ -427,7 +458,7 @@ async function loadOverview() {
     } else {
       tbody.innerHTML = data.estates.map(e => `<tr>
         <td><div style="font-weight:600;color:#fff;">${e.name}</div><div style="font-size:11px;color:#555;">${e.city||''}</div></td>
-        <td><span style="font-family:monospace;font-size:12px;color:#22c55e;">${e.pass_prefix}</span></td>
+        <td><span style="font-family:monospace;font-size:12px;color:#166534;">${e.pass_prefix}</span></td>
         <td style="font-family:monospace;font-size:11px;color:#6b7280;">+${e.whatsapp_number}</td>
         <td style="color:#9ca3af;">${e.resident_count||0}</td>
         <td style="color:#60a5fa;">${e.passes_today||0}</td>
@@ -492,7 +523,9 @@ async function addEstate() {
     const res = await fetch(`${SERVER}/api/superadmin/estates`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-admin-secret': masterPassword },
-      body: JSON.stringify({ name, city, pass_prefix: prefix, whatsapp_number: whatsapp, estate_type: type, admin_email: adminEmail, admin_password: adminPassword }),
+      const numGates = parseInt(document.getElementById('e-gates').value);
+      const gateNames = document.getElementById('e-gate-names').value.trim();
+      body: JSON.stringify({ name, city, pass_prefix: prefix, whatsapp_number: whatsapp, estate_type: type, admin_email: adminEmail, admin_password: adminPassword, num_gates: numGates, gate_names: gateNames }),
     });
     const data = await res.json();
     if (data.success) {
@@ -500,13 +533,8 @@ async function addEstate() {
       result.style.display = 'block';
       result.style.background = 'rgba(34,197,94,0.1)';
       result.style.border = '1px solid rgba(34,197,94,0.3)';
-      result.style.color = '#22c55e';
-      result.innerHTML = `✓ Estate created successfully<br><br>
-        <strong>Estate:</strong> ${name}<br>
-        <strong>Pass prefix:</strong> ${prefix}<br>
-        <strong>WhatsApp:</strong> +${whatsapp}<br>
-        <strong>Admin login:</strong> ${adminEmail}<br><br>
-        Share the admin email and password with the estate ExCo.`;
+      result.style.color = '#166534';
+      result.innerHTML = `✓ Estate created successfully<br><br><strong>Estate:</strong> ${name}<br><strong>Pass prefix:</strong> ${prefix}<br><strong>WhatsApp:</strong> +${whatsapp}<br><strong>Gates:</strong> ${numGates}<br><strong>Admin login:</strong> ${adminEmail}<br><br>Share the admin email and password with the estate ExCo.`;
       clearEstateForm();
       loadEstates();
       loadOverview();
@@ -518,7 +546,7 @@ async function addEstate() {
 }
 
 function clearEstateForm() {
-  ['e-name','e-city','e-prefix','e-whatsapp','e-admin-email','e-admin-password'].forEach(id => { document.getElementById(id).value = ''; });
+  ['e-name','e-city','e-prefix','e-whatsapp','e-admin-email','e-admin-password','e-gate-names'].forEach(id => { document.getElementById(id).value = ''; }); document.getElementById('e-gates').value = '2';
   document.getElementById('add-estate-result').style.display = 'none';
 }
 
