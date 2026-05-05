@@ -91,6 +91,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .form-group { display: flex; flex-direction: column; gap: 6px; }
 .inline-input { padding: 10px 12px; background: #fff; border: 1px solid #d1d5db; border-radius: 8px; color: #111; font-size: 13px; width: 100%; transition: border-color 0.2s; }
 .inline-input:focus { outline: none; border-color: #166534; }
+.role-btn { padding: 8px 16px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; color: #888; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+.role-btn:hover { border-color: #166534; color: #166534; }
+.role-btn.active { background: #166534; color: #fff; border-color: #166534; }
 .incident-card { padding: 16px 18px; border-bottom: 1px solid #f3f4f6; }
 .incident-card:last-child { border-bottom: none; }
 .incident-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
@@ -237,37 +240,57 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <div class="page-title">Resident management</div>
     <div class="page-sub">Add, view and manage registered households</div>
     <div class="panel" style="margin-bottom:16px;">
-      <div class="panel-header"><div class="panel-title">Add new resident</div></div>
+      <div class="panel-header"><div class="panel-title">Add new person</div></div>
       <div style="padding:18px;">
-        <div class="form-row-3">
-          <div class="form-group">
-            <label class="form-label">House number</label>
-            <input class="inline-input" id="r-house" placeholder="e.g. 12 Ondo Close"/>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Flat / Unit (optional)</label>
-            <input class="inline-input" id="r-flat" placeholder="e.g. Flat 3"/>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Resident name</label>
-            <input class="inline-input" id="r-name" placeholder="Full name"/>
+        <input type="hidden" id="r-role" value="resident"/>
+        <div style="margin-bottom:14px;">
+          <label class="form-label">Select role</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+            <button class="role-btn active" id="rbtn-resident" onclick="setRole('resident')">&#127968; Resident</button>
+            <button class="role-btn" id="rbtn-admin" onclick="setRole('admin')">&#128100; ExCo Admin</button>
+            <button class="role-btn" id="rbtn-security" onclick="setRole('security')">&#128737; Head of Security</button>
           </div>
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">WhatsApp number</label>
-            <input class="inline-input" id="r-phone" placeholder="2348012345678"/>
+        <div id="role-description" style="font-size:12px;color:#666;margin-bottom:16px;padding:10px 14px;background:#f9fafb;border-radius:8px;border-left:3px solid #166534;line-height:1.7;">
+          Lives in the estate and can generate visitor passes via WhatsApp. Their number is linked to their house number.
+        </div>
+        <div id="fields-resident">
+          <div class="form-row-3">
+            <div class="form-group"><label class="form-label">House number</label><input class="inline-input" id="r-house" placeholder="e.g. 12 Ondo Close"/></div>
+            <div class="form-group"><label class="form-label">Flat / Unit (optional)</label><input class="inline-input" id="r-flat" placeholder="e.g. Flat 3"/></div>
+            <div class="form-group"><label class="form-label">Full name</label><input class="inline-input" id="r-name" placeholder="Full name"/></div>
           </div>
-          <div class="form-group">
-            <label class="form-label">Role</label>
-            <select class="inline-input" id="r-role">
-              <option value="resident">Resident</option>
-              <option value="admin">Admin</option>
-              <option value="security">Head of security</option>
-            </select>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">WhatsApp number</label><input class="inline-input" id="r-phone" placeholder="2348012345678"/></div>
+            <div class="form-group" style="justify-content:flex-end;padding-top:20px;"><button class="submit-btn" onclick="addResident()">Add resident</button></div>
           </div>
         </div>
-        <button class="submit-btn" onclick="addResident()">Add resident</button>
+        <div id="fields-admin" style="display:none;">
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Full name</label><input class="inline-input" id="a-name" placeholder="ExCo member full name"/></div>
+            <div class="form-group"><label class="form-label">WhatsApp number</label><input class="inline-input" id="a-phone" placeholder="2348012345678"/></div>
+          </div>
+          <div style="font-size:12px;color:#888;margin-bottom:14px;line-height:1.7;">ExCo admins share the estate console login. They can manage the dashboard but cannot generate passes unless also registered as a resident.</div>
+          <button class="submit-btn" onclick="addResident()">Add ExCo admin</button>
+        </div>
+        <div id="fields-security" style="display:none;">
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Full name</label><input class="inline-input" id="s-name" placeholder="Officer full name"/></div>
+            <div class="form-group"><label class="form-label">WhatsApp number</label><input class="inline-input" id="s-phone" placeholder="2348012345678"/></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Assigned gate</label>
+              <select class="inline-input" id="s-gate">
+                <option value="main">Main Gate</option>
+                <option value="community">Community Street Gate</option>
+                <option value="all">All gates</option>
+              </select>
+            </div>
+            <div class="form-group" style="justify-content:flex-end;padding-top:20px;"><button class="submit-btn" onclick="addResident()">Add security officer</button></div>
+          </div>
+          <div style="font-size:12px;color:#888;margin-top:4px;line-height:1.7;">Security officers receive incident alerts on WhatsApp and operate the gate scanner. They cannot generate visitor passes.</div>
+        </div>
       </div>
     </div>
     <div class="panel">
@@ -506,25 +529,55 @@ async function loadResidents() {
 
 function escQ(s) { return (s||'').replace(/'/g, "\\'"); }
 
+function setRole(role) {
+  document.getElementById('r-role').value = role;
+  ['resident','admin','security'].forEach(r => {
+    document.getElementById('rbtn-' + r).classList.toggle('active', r === role);
+    document.getElementById('fields-' + r).style.display = r === role ? 'block' : 'none';
+  });
+  const desc = {
+    resident: 'Lives in the estate and can generate visitor passes via WhatsApp. Their number is linked to their house number.',
+    admin: 'ExCo member who helps manage the estate. Shares the admin console login. Cannot generate passes unless also registered as a resident.',
+    security: 'Gate security officer. Receives incident alerts on WhatsApp and operates the gate scanner. Cannot generate visitor passes and does not need a house number.'
+  };
+  document.getElementById('role-description').textContent = desc[role];
+}
+
 async function addResident() {
-  const house = document.getElementById('r-house').value.trim();
-  const flat = document.getElementById('r-flat').value.trim();
-  const name = document.getElementById('r-name').value.trim();
-  const phone = document.getElementById('r-phone').value.trim();
   const role = document.getElementById('r-role').value;
-  if (!house || !name || !phone) { showToast('Please fill in house number, name and WhatsApp', 'error'); return; }
+  let name, phone, house = '', flat = '', gate = '';
+
+  if (role === 'resident') {
+    house = document.getElementById('r-house').value.trim();
+    flat = document.getElementById('r-flat').value.trim();
+    name = document.getElementById('r-name').value.trim();
+    phone = document.getElementById('r-phone').value.trim();
+    if (!house || !name || !phone) { showToast('Please fill in house number, name and WhatsApp', 'error'); return; }
+  } else if (role === 'admin') {
+    name = document.getElementById('a-name').value.trim();
+    phone = document.getElementById('a-phone').value.trim();
+    if (!name || !phone) { showToast('Please fill in name and WhatsApp', 'error'); return; }
+  } else if (role === 'security') {
+    name = document.getElementById('s-name').value.trim();
+    phone = document.getElementById('s-phone').value.trim();
+    gate = document.getElementById('s-gate').value;
+    if (!name || !phone) { showToast('Please fill in name and WhatsApp', 'error'); return; }
+  }
+
   const fullHouse = flat ? `${house}, ${flat}` : house;
   try {
     const res = await fetch(`${SERVER}/api/admin/residents`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ estate_id: ESTATE_ID, house_number: fullHouse, flat_unit: flat, resident_name: name, whatsapp_number: phone, role }),
+      body: JSON.stringify({ estate_id: ESTATE_ID, house_number: fullHouse, flat_unit: flat, resident_name: name, whatsapp_number: phone, role, gate_assignment: gate }),
     });
     const data = await res.json();
     if (data.success) {
-      showToast(`${name} added successfully`, 'success');
-      ['r-house','r-flat','r-name','r-phone'].forEach(id => document.getElementById(id).value = '');
+      const labels = { resident: 'Resident', admin: 'ExCo admin', security: 'Security officer' };
+      showToast(`${name} added as ${labels[role]}`, 'success');
+      ['r-house','r-flat','r-name','r-phone','a-name','a-phone','s-name','s-phone'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+      setRole('resident');
       loadResidents();
-    } else { showToast(data.error || 'Could not add resident', 'error'); }
+    } else { showToast(data.error || 'Could not add person', 'error'); }
   } catch { showToast('Connection error', 'error'); }
 }
 
