@@ -1169,24 +1169,128 @@ app.delete('/api/admin/incidents/clear', async (req, res) => {
 });
 
 // ================================================
-// WEEKLY REPORT
+// SUPERADMIN MIDDLEWARE
 // ================================================
-cron.schedule('0 20 * * 0', async () => {
-  console.log('Generating weekly reports...');
+function requireSuperAdmin(req, res, next) {
+  const secret = req.headers['x-admin-secret'] || req.body?.secret;
+  if (secret !== process.env.ADMIN_PASSWORD) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  next();
+}
+
+// ================================================
+// SUPERADMIN — PLATFORM OVERVIEW
+// ================================================
+app.get('/api/superadmin/overview', requireSuperAdmin, async (req, res) => {
   try {
     const { data: estates } = await supabase.from('estates').select('*').eq('is_active', true);
-    if (!estates) return;
+    const { data: allResidents } = await supabase.from('residents').select('estate_id').eq('is_active', true);
 
-    const nodemailer = require('nodemailer');
-    const transporter = nodemailer.createTransporter({
-      service: 'gmail', auth: { user: SMTP_USER, pass: SMTP_PASS },
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const { data: todayPasses } = await supabase.from('visitors').select('estate_id').gte('created_at', today.toISOString());
+    const { data: incidents } = await supabase.from('incidents').select('estate_id').eq('status', 'open');
+
+    // Build per-estate stats
+    const estatesWithStats = (estates || []).map(e => ({
+      ...e,
+      resident_count: (allResidents || []).filter(r => r.estate_id === e.id).length,
+      passes_today: (todayPasses || []).filter(p => p.estate_id === e.id).length,
+    }));
+
+    res.json({
+      total_estates: estates?.length || 0,
+      total_residents: allResidents?.length || 0,
+      total_passes_today: todayPasses?.length || 0,
+      total_incidents: incidents?.length || 0,
+      estates: estatesWithStats,
     });
+  } catch (err) {
+    console.error('Superadmin overview error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
-    for (const estate of estates) {
-      const now = new Date();
-      const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+// ================================================
+// SUPERADMIN — LIST ALL ESTATES
+// ================================================
+app.get('/api/superadmin/estates', requireSuperAdmin, async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('estates').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json({ estates: data || [] });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ================================================
+// SUPERADMIN — CREATE ESTATE
+// ================================================
+app.post('/api/superadmin/estates', requireSuperAdmin, async (req, res) => {
+  const { name, city, pass_prefix, whatsapp_number, estate_type, admin_email, admin_password } = req.body;
+  if (!name || !pass_prefix || !whatsapp_number || !admin_email || !admin_password) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+  try {
+    // Check prefix not already taken
+    const { data: existing } = await supabase.from('estates').select('id').eq('pass_prefix', pass_prefix.toUpperCase()).single();
+    if (existing) return res.json({ success: false, error: `Prefix ${pass_prefix} is already in use` });
+
+    const { data, error } = await supabase.from('estates').insert({
+      name,
+      city: city || '',
+      pass_prefix: pass_prefix.toUpperCase(),
+      whatsapp_number,
+      estate_type: estate_type || 'estate',
+      admin_email,
+      admin_password,
+      is_active: true,
+    }).select().single();
+
+    if (error) throw error;
+    res.json({ success: true, estate: data });
+  } catch (err) {
+    console.error('Create estate error:', err);
+    res.status(500).json({ success: false, error: 'Could not create estate' });
+  }
+});
+
+// ================================================
+// SUPERADMIN — TOGGLE ESTATE ACTIVE
+// ================================================
+app.patch('/api/superadmin/estates/:id', requireSuperAdmin, async (req, res) => {
+  const { id } = req.params;
+  const { is_active } = req.body;
+  try {
+    const { error } = await supabase.from('estates').update({ is_active }).eq('id', id);
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false });
+  }
+});
+
+// ================================================
+// SHARED REPORT GENERATOR
+// ================================================
+async function generateAndSendReports(periodLabel, daysBack) {
+  const nodemailer = require('nodemailer');
+  const transporter = nodemailer.createTransporter({
+    service: 'gmail', auth: { user: SMTP_USER, pass: SMTP_PASS },
+  });
+
+  const { data: estates } = await supabase.from('estates').select('*').eq('is_active', true);
+  if (!estates || estates.length === 0) return { sent: 0 };
+
+  let sent = 0;
+  const now = new Date();
+  const periodStart = new Date(now.getTime() - daysBack * 24 * 60 * 60 * 1000);
+
+  for (const estate of estates) {
+    try {
       const { data: passes } = await supabase.from('visitors').select('*')
-        .eq('estate_id', estate.id).gte('created_at', weekAgo.toISOString());
+        .eq('estate_id', estate.id).gte('created_at', periodStart.toISOString());
       if (!passes) continue;
 
       const total = passes.length;
@@ -1194,42 +1298,102 @@ cron.schedule('0 20 * * 0', async () => {
       const cancelled = passes.filter(p => p.status === 'cancelled').length;
       const expired = passes.filter(p => p.status === 'expired').length;
       const noExit = passes.filter(p => p.status === 'checked_in').length;
+      const active = passes.filter(p => p.status === 'active').length;
       const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
 
       const reportDate = now.toLocaleDateString('en-NG', {
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
       });
 
+      const periodFrom = periodStart.toLocaleDateString('en-NG', {
+        day: 'numeric', month: 'long', year: 'numeric'
+      });
+
       const emailBody = `
 GATEPASS — ${estate.name.toUpperCase()}
-Weekly Operations Report — ${reportDate}
+${periodLabel} · ${reportDate}
 ${'─'.repeat(44)}
 
-SUMMARY
+PERIOD
+From: ${periodFrom}
+To:   ${reportDate}
+
+VISITOR PASS SUMMARY
 Total passes issued:       ${total}
 Completed (entry + exit):  ${completed} (${completionRate}%)
 Cancelled by residents:    ${cancelled}
 Expired unused:            ${expired}
+Active (not yet used):     ${active}
 Entered, no exit logged:   ${noExit}
 
 ${'─'.repeat(44)}
-${noExit > 0 ? `NOTE: ${noExit} visitor(s) entered but have no exit log.\nRemind guards to scan visitors on departure.\n\n` : ''}
-This report is automatically generated every Sunday evening.
-GatePass · ${estate.name} · Built by IGATA Consulting Technologies
+${noExit > 0 ? `⚠ NOTE: ${noExit} visitor(s) entered but have no exit log.\nRemind guards to scan visitors on departure.\n\n` : ''}${total === 0 ? `No visitor passes were issued during this period.\n\n` : ''}
+Generated automatically by GatePass.
+${estate.name} · IGATA Consulting Technologies
       `.trim();
 
       await transporter.sendMail({
         from: `GatePass ${estate.name} <${SMTP_USER}>`,
         to: REPORT_EMAIL,
-        subject: `GatePass Weekly Report · ${estate.name} · ${reportDate}`,
+        subject: `GatePass ${periodLabel} · ${estate.name} · ${reportDate}`,
         text: emailBody,
       });
-      console.log(`Weekly report sent for ${estate.name}`);
+      sent++;
+      console.log(`${periodLabel} sent for ${estate.name}`);
+    } catch (err) {
+      console.error(`Report error for ${estate.name}:`, err);
     }
+  }
+  return { sent, total_estates: estates.length };
+}
+
+// ================================================
+// WEEKLY REPORT — every Sunday 8pm Lagos
+// ================================================
+cron.schedule('0 20 * * 0', async () => {
+  console.log('Running weekly reports...');
+  try {
+    await generateAndSendReports('Weekly Operations Report', 7);
   } catch (err) {
-    console.error('Report error:', err);
+    console.error('Weekly report error:', err);
   }
 }, { timezone: 'Africa/Lagos' });
+
+// ================================================
+// MONTHLY REPORT — last day of month 8pm Lagos
+// ================================================
+cron.schedule('0 20 28-31 * *', async () => {
+  const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Africa/Lagos' }));
+  const tomorrow = new Date(now);
+  tomorrow.setDate(now.getDate() + 1);
+  // Only fire if tomorrow is the 1st (i.e. today is last day of month)
+  if (tomorrow.getDate() !== 1) return;
+  console.log('Running monthly reports...');
+  try {
+    await generateAndSendReports('Monthly Operations Report', 31);
+  } catch (err) {
+    console.error('Monthly report error:', err);
+  }
+}, { timezone: 'Africa/Lagos' });
+
+// ================================================
+// MANUAL REPORT TRIGGER (protected)
+// ================================================
+app.post('/api/admin/trigger-report', async (req, res) => {
+  const { secret, period } = req.body;
+  if (secret !== process.env.ADMIN_PASSWORD) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  try {
+    const days = period === 'monthly' ? 31 : 7;
+    const label = period === 'monthly' ? 'Monthly Operations Report' : 'Weekly Operations Report';
+    const result = await generateAndSendReports(label, days);
+    res.json({ success: true, ...result });
+  } catch (err) {
+    console.error('Manual report error:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 // ================================================
 // AUTO EXPIRY
