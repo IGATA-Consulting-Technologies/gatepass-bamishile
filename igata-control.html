@@ -24,7 +24,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .password-wrap .field-input { margin-bottom: 0; padding-right: 44px; }
 .eye-btn { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #888; padding: 4px; display: flex; align-items: center; }
 .eye-btn:hover { color: #166534; }
-.login-btn { width: 100%; padding: 12px; background: #166534; color: #000; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.2s; margin-top: 8px; }
+.login-btn { width: 100%; padding: 12px; background: #166534; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.2s; margin-top: 8px; }
 .login-btn:hover { background: #14532d; color: #111; }
 .login-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .login-error { font-size: 12px; color: #f87171; margin-top: 12px; text-align: center; display: none; padding: 10px; background: rgba(239,68,68,0.1); border-radius: 6px; border: 1px solid rgba(239,68,68,0.2); }
@@ -530,9 +530,7 @@ async function addEstate() {
     const res = await fetch(`${SERVER}/api/superadmin/estates`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-admin-secret': masterPassword },
-      const numGates = parseInt(document.getElementById('e-gates').value);
-      const gateNames = document.getElementById('e-gate-names').value.trim();
-      body: JSON.stringify({ name, city, pass_prefix: prefix, whatsapp_number: whatsapp, estate_type: type, admin_email: adminEmail, admin_password: adminPassword, num_gates: numGates, gate_names: gateNames }),
+      body: JSON.stringify({ name, city, pass_prefix: prefix, whatsapp_number: whatsapp, estate_type: type, admin_email: adminEmail, admin_password: adminPassword, num_gates: parseInt(document.getElementById('e-gates').value), gate_names: document.getElementById('e-gate-names').value.trim() }),
     });
     const data = await res.json();
     if (data.success) {
@@ -541,7 +539,7 @@ async function addEstate() {
       result.style.background = 'rgba(34,197,94,0.1)';
       result.style.border = '1px solid rgba(34,197,94,0.3)';
       result.style.color = '#166534';
-      result.innerHTML = `✓ Estate created successfully<br><br><strong>Estate:</strong> ${name}<br><strong>Pass prefix:</strong> ${prefix}<br><strong>WhatsApp:</strong> +${whatsapp}<br><strong>Gates:</strong> ${numGates}<br><strong>Admin login:</strong> ${adminEmail}<br><br>Share the admin email and password with the estate ExCo.`;
+      result.innerHTML = `✓ Estate created successfully<br><br><strong>Estate:</strong> ${name}<br><strong>Pass prefix:</strong> ${prefix}<br><strong>WhatsApp:</strong> +${whatsapp}<br><strong>Admin login:</strong> ${adminEmail}<br><br>Share the admin email and password with the estate ExCo.`;
       clearEstateForm();
       loadEstates();
       loadOverview();
