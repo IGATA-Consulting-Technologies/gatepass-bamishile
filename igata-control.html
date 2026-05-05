@@ -9,8 +9,8 @@
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f9fa; color: #111; min-height: 100vh; }
 
 /* LOGIN */
-.login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; background: #f8f9fa; }
-.login-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 48px 40px; width: 100%; max-width: 400px; }
+.login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; background: #f8f9fa; width: 100%; }
+.login-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 40px 32px; width: 100%; max-width: 400px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
 .login-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; }
 .login-logo-text { font-size: 20px; font-weight: 800; color: #111; letter-spacing: -0.5px; }
 .login-logo-text span { color: #166534; }
@@ -171,7 +171,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <label class="field-label">Master email</label>
     <input class="field-input" type="email" id="login-email" placeholder="your@igata.com" onkeydown="if(event.key==='Enter') document.getElementById('login-password').focus()"/>
     <label class="field-label">Master password</label>
-    <input class="field-input" type="password" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter') doLogin()"/>
+    <div class="password-wrap" style="margin-bottom:14px;position:relative;">
+      <input class="field-input" type="password" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter') doLogin()" style="padding-right:44px;margin-bottom:0;"/>
+      <button onclick="togglePassword()" type="button" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#888;padding:4px;display:flex;align-items:center;">
+        <svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+        </svg>
+      </button>
+    </div>
     <button class="login-btn" id="login-btn" onclick="doLogin()">Access platform</button>
     <div class="login-error" id="login-error">Invalid credentials</div>
     <div class="login-footer">IGATA Consulting Technologies · Private</div>
