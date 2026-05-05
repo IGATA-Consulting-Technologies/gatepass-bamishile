@@ -512,8 +512,8 @@ async function loadResidents() {
     document.getElementById('residents-count').textContent = `${data.residents.length} registered`;
     document.getElementById('residents-tbody').innerHTML = data.residents.length === 0
       ? '<tr><td colspan="6" class="empty-state">No residents registered</td></tr>'
-      : data.residents.map(r => `<tr>
-          <td><div style="font-weight:600;">${r.house_number}</div>${r.flat_unit ? `<div style="font-size:11px;color:#888;">${r.flat_unit}</div>` : ''}</td>
+      : data.residents.filter(r => !r.whatsapp_number?.startsWith('DELETED_')).map(r => `<tr>
+          <td><div style="font-weight:600;">${r.house_number||'—'}</div>${r.flat_unit ? `<div style="font-size:11px;color:#888;">${r.flat_unit}</div>` : ''}</td>
           <td>${r.resident_name}</td>
           <td style="font-family:monospace;font-size:11px;color:#888;">+${r.whatsapp_number}</td>
           <td><span class="badge badge-gray">${r.role||'resident'}</span></td>
@@ -631,10 +631,11 @@ async function loadPasses() {
   try {
     const res = await fetch(`${SERVER}/api/admin/dashboard?estate_id=${ESTATE_ID}`);
     const data = await res.json();
-    document.getElementById('passes-count').textContent = `${data.summary.total_today} today`;
-    document.getElementById('passes-tbody').innerHTML = (data.inside_now||[]).length === 0
+    const passes = data.today_passes || data.inside_now || [];
+    document.getElementById('passes-count').textContent = `${passes.length} today`;
+    document.getElementById('passes-tbody').innerHTML = passes.length === 0
       ? '<tr><td colspan="7" class="empty-state">No passes today</td></tr>'
-      : (data.inside_now||[]).map(p => `<tr><td style="font-family:monospace;font-size:11px;">${p.pass_code}</td><td>${p.visitor_name}</td><td>${p.house_number}</td><td><span class="badge badge-gray">${p.gate_id||'main'}</span></td><td>${statusBadge(p.status)}</td><td style="color:#888;">${formatTime(p.entry_time)}</td><td style="color:#888;">${formatTime(p.exit_time)}</td></tr>`).join('');
+      : passes.map(p => `<tr><td style="font-family:monospace;font-size:11px;">${p.pass_code}</td><td>${p.visitor_name}</td><td>${p.house_number||'—'}</td><td><span class="badge badge-gray">${p.gate_id||'—'}</span></td><td>${statusBadge(p.status)}</td><td style="color:#888;">${formatTime(p.entry_time)}</td><td style="color:#888;">${formatTime(p.exit_time)}</td></tr>`).join('');
   } catch (e) { console.error(e); }
 }
 
