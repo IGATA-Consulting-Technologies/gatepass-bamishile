@@ -1,5 +1,5 @@
 // ================================================
-// GATEPASS · SERVER v3.0 · MULTI-TENANT + AI
+// GATEPASS · SERVER v4.0 · MULTI-TENANT + AI + RESEND
 // Powered by IGATA Consulting Technologies
 // ================================================
 
@@ -22,6 +22,7 @@ const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
 const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
 const TWILIO_WHATSAPP_NUMBER = process.env.TWILIO_WHATSAPP_NUMBER;
 const REPORT_EMAIL = process.env.REPORT_EMAIL;
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const SMTP_USER = process.env.SMTP_USER;
 const SMTP_PASS = process.env.SMTP_PASS;
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
@@ -30,11 +31,121 @@ const PORT = process.env.PORT || 3000;
 
 const ws = require('ws');
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
-  realtime: {
-    transport: ws,
-  },
+  realtime: { transport: ws },
 });
 const twilioClient = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+
+// ================================================
+// EMAIL HELPER — Resend (with nodemailer fallback)
+// ================================================
+async function sendEmail(to, subject, text) {
+  // Try Resend first
+  if (RESEND_API_KEY) {
+    try {
+      const body = JSON.stringify({
+        from: 'GatePass <reports@igata.ng>',
+        to: [to],
+        subject,
+        text,
+      });
+      const options = {
+        hostname: 'api.resend.com',
+        path: '/emails',
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(body),
+        },
+      };
+      await new Promise((resolve, reject) => {
+        const req = https.request(options, (res) => {
+          let data = '';
+          res.on('data', chunk => data += chunk);
+          res.on('end', () => {
+            const parsed = JSON.parse(data);
+            if (parsed.id) resolve(parsed);
+            else reject(new Error(data));
+          });
+        });
+        req.on('error', reject);
+        req.write(body);
+        req.end();
+      });
+      console.log(`Email sent via Resend: ${subject}`);
+      return true;
+    } catch (err) {
+      console.error('Resend error, trying nodemailer fallback:', err.message);
+    }
+  }
+  // Nodemailer fallback
+  if (SMTP_USER && SMTP_PASS) {
+    const nodemailer = require('nodemailer');
+    const transporter = nodemailer.createTransporter({
+      service: 'gmail', auth: { user: SMTP_USER, pass: SMTP_PASS },
+    });
+    await transporter.sendMail({ from: `GatePass <${SMTP_USER}>`, to, subject, text });
+    console.log(`Email sent via nodemailer: ${subject}`);
+    return true;
+  }
+  console.error('No email provider configured');
+  return false;
+}
+
+// ================================================
+// WELCOME MESSAGE — sent when resident is registered
+// ================================================
+async function sendWelcomeMessage(whatsappNumber, residentName, houseName, estateName, passPrefix, estateWhatsAppNumber) {
+  const waNumber = estateWhatsAppNumber.replace('+', '');
+  const message =
+    `Welcome to GatePass! 🏘
+
+` +
+    `Hi ${residentName}, you have been registered as a resident at ${houseName}, ${estateName}.
+
+` +
+    `*How to create a visitor pass:*
+` +
+    `Type: VISIT [visitor name] today
+` +
+    `Example: VISIT John Lagbaja today
+
+` +
+    `*For tomorrow:*
+` +
+    `VISIT John Lagbaja tomorrow
+
+` +
+    `*Cancel a pass:*
+` +
+    `CANCEL ${passPrefix}-XXXX
+
+` +
+    `*Check pass status:*
+` +
+    `STATUS ${passPrefix}-XXXX
+
+` +
+    `*Add family members:*
+` +
+    `INVITE [their name]
+` +
+    `They get a code to join GatePass on their own phone.
+
+` +
+    `*Ready to test?* Create your first pass now:
+` +
+    `VISIT Test Visitor today
+
+` +
+    `_Powered by IGATA Consulting Technologies_`;
+  try {
+    await sendWhatsApp(whatsappNumber, message);
+    console.log(`Welcome message sent to ${whatsappNumber}`);
+  } catch (err) {
+    console.error('Welcome message failed:', err.message);
+  }
+}
 
 // ================================================
 // QR CODE STORE
@@ -608,7 +719,7 @@ app.post('/webhook/whatsapp', async (req, res) => {
       const parts = body.split(' ');
       if (parts.length < 3) {
         await sendWhatsApp(from,
-          `Please use this format:\nVISIT [name] today\n\nExamples:\nVISIT John Doe today\nVISIT John Doe tomorrow`
+          `Please use this format:\nVISIT [name] today\n\nExamples:\nVISIT John Lagbaja today\nVISIT John Lagbaja tomorrow`
         );
         return;
       }
@@ -616,7 +727,7 @@ app.post('/webhook/whatsapp', async (req, res) => {
       const datePart = parts[parts.length - 1].toLowerCase();
       if (!['today', 'tomorrow'].includes(datePart)) {
         await sendWhatsApp(from,
-          `Please end with "today" or "tomorrow".\n\nExample:\nVISIT John Doe today`
+          `Please end with "today" or "tomorrow".\n\nExample:\nVISIT John Lagbaja today`
         );
         return;
       }
@@ -633,7 +744,7 @@ app.post('/webhook/whatsapp', async (req, res) => {
       }
 
       if (!visitorName) {
-        await sendWhatsApp(from, `Please include your visitor's name.\nExample: VISIT John Doe today`);
+        await sendWhatsApp(from, `Please include your visitor's name.\nExample: VISIT John Lagbaja today`);
         return;
       }
 
@@ -992,13 +1103,51 @@ app.get('/api/admin/residents', async (req, res) => {
 });
 
 app.post('/api/admin/residents', async (req, res) => {
-  const { estate_id, house_number, resident_name, whatsapp_number, role } = req.body;
+  const { estate_id, house_number, flat_unit, resident_name, whatsapp_number, role, gate_assignment } = req.body;
   try {
-    const { data, error } = await supabase.from('residents').insert({
-      estate_id, house_number, resident_name, whatsapp_number,
-      role: role || 'resident', is_active: true,
-    }).select().single();
+    // Check for duplicate WhatsApp number in this estate
+    const { data: existing } = await supabase
+      .from('residents')
+      .select('id')
+      .eq('estate_id', estate_id)
+      .eq('whatsapp_number', whatsapp_number)
+      .single();
+    if (existing) {
+      return res.json({ success: false, error: 'This WhatsApp number is already registered in this estate' });
+    }
+
+    const insertData = {
+      estate_id,
+      resident_name,
+      whatsapp_number,
+      role: role || 'resident',
+      is_active: true,
+    };
+    // Only set house_number if provided (residents need it, admins/security do not)
+    if (house_number) insertData.house_number = house_number;
+    if (flat_unit) insertData.flat_unit = flat_unit;
+    if (gate_assignment) insertData.gate_assignment = gate_assignment;
+
+    const { data, error } = await supabase.from('residents').insert(insertData).select().single();
     if (error) throw error;
+
+    // Send welcome WhatsApp message to the new resident
+    try {
+      const { data: estate } = await supabase.from('estates').select('*').eq('id', estate_id).single();
+      if (estate && whatsapp_number) {
+        await sendWelcomeMessage(
+          whatsapp_number,
+          resident_name,
+          house_number || role,
+          estate.name,
+          estate.pass_prefix,
+          estate.whatsapp_number
+        );
+      }
+    } catch (welcomeErr) {
+      console.error('Welcome message error (non-fatal):', welcomeErr.message);
+    }
+
     res.json({ success: true, resident: data });
   } catch (err) {
     console.error('Add resident error:', err);
@@ -1041,6 +1190,7 @@ app.get('/api/admin/dashboard', async (req, res) => {
         denied_today: recentLogs?.filter(l => l.action === 'denied').length || 0,
       },
       inside_now: insideNow || [],
+      today_passes: todayPasses || [],
       recent_logs: recentLogs || [],
       open_incidents: openIncidents || [],
     });
@@ -1096,11 +1246,18 @@ app.post('/api/admin/auth', async (req, res) => {
 app.delete('/api/admin/residents/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    // Remove household members first
-    await supabase.from('household_members').delete().eq('primary_resident_id', id);
-    await supabase.from('household_invites').delete().eq('resident_id', id);
-    // Remove the resident
-    const { error } = await supabase.from('residents').delete().eq('id', id);
+    // Deactivate household members
+    await supabase.from('household_members').update({ is_active: false }).eq('primary_resident_id', id);
+    // Expire unused household invites
+    await supabase.from('household_invites').update({ used: true }).eq('resident_id', id);
+    // Soft delete: deactivate and clear WhatsApp so number can be reused
+    const { error } = await supabase.from('residents')
+      .update({
+        is_active: false,
+        whatsapp_number: `DELETED_${id}`,
+        resident_name: `[Deleted] ${id.substring(0, 8)}`,
+      })
+      .eq('id', id);
     if (error) throw error;
     res.json({ success: true });
   } catch (err) {
@@ -1275,10 +1432,7 @@ app.patch('/api/superadmin/estates/:id', requireSuperAdmin, async (req, res) => 
 // SHARED REPORT GENERATOR
 // ================================================
 async function generateAndSendReports(periodLabel, daysBack) {
-  const nodemailer = require('nodemailer');
-  const transporter = nodemailer.createTransporter({
-    service: 'gmail', auth: { user: SMTP_USER, pass: SMTP_PASS },
-  });
+  // Using sendEmail helper (Resend or nodemailer fallback)
 
   const { data: estates } = await supabase.from('estates').select('*').eq('is_active', true);
   if (!estates || estates.length === 0) return { sent: 0 };
@@ -1332,12 +1486,11 @@ Generated automatically by GatePass.
 ${estate.name} · IGATA Consulting Technologies
       `.trim();
 
-      await transporter.sendMail({
-        from: `GatePass ${estate.name} <${SMTP_USER}>`,
-        to: REPORT_EMAIL,
-        subject: `GatePass ${periodLabel} · ${estate.name} · ${reportDate}`,
-        text: emailBody,
-      });
+      await sendEmail(
+        REPORT_EMAIL,
+        `GatePass ${periodLabel} · ${estate.name} · ${reportDate}`,
+        emailBody
+      );
       sent++;
       console.log(`${periodLabel} sent for ${estate.name}`);
     } catch (err) {
@@ -1414,7 +1567,7 @@ cron.schedule('0 * * * *', async () => {
 app.get('/', (req, res) => {
   res.json({
     system: 'GatePass',
-    version: '3.0',
+    version: '4.0',
     status: 'online',
     ai: 'active',
     powered_by: 'IGATA Consulting Technologies',
@@ -1422,5 +1575,5 @@ app.get('/', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`GatePass server v3.0 with AI running on port ${PORT}`);
+  console.log(`GatePass server v4.0 with AI + Resend running on port ${PORT}`);
 });
