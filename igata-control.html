@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IGATA · GatePass Control</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e5e7eb; min-height: 100vh; }
+
+/* LOGIN */
+.login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; background: #0f1117; }
+.login-card { background: #1a1d27; border: 1px solid #2a2d3a; border-radius: 16px; padding: 48px 40px; width: 100%; max-width: 400px; }
+.login-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; }
+.login-logo-text { font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
+.login-logo-text span { color: #22c55e; }
+.login-logo-sub { font-size: 10px; color: #555; letter-spacing: 2px; margin-top: 2px; }
+.login-heading { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+.login-sub { font-size: 12px; color: #555; margin-bottom: 28px; }
+.field-label { font-size: 11px; color: #6b7280; font-weight: 500; margin-bottom: 6px; display: block; letter-spacing: 0.3px; }
+.field-input { width: 100%; padding: 11px 14px; background: #0f1117; border: 1px solid #2a2d3a; border-radius: 8px; color: #e5e7eb; font-size: 14px; margin-bottom: 14px; transition: border-color 0.2s; }
+.field-input:focus { outline: none; border-color: #22c55e; }
+.login-btn { width: 100%; padding: 12px; background: #22c55e; color: #000; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.2s; margin-top: 8px; }
+.login-btn:hover { background: #16a34a; color: #fff; }
+.login-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.login-error { font-size: 12px; color: #f87171; margin-top: 12px; text-align: center; display: none; padding: 10px; background: rgba(239,68,68,0.1); border-radius: 6px; border: 1px solid rgba(239,68,68,0.2); }
+.login-footer { text-align: center; margin-top: 24px; font-size: 10px; color: #333; letter-spacing: 1px; text-transform: uppercase; }
+
+/* CONSOLE */
+.console { display: none; min-height: 100vh; background: #0f1117; }
+.topbar { background: #1a1d27; border-bottom: 1px solid #2a2d3a; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+.topbar-left { display: flex; align-items: center; gap: 14px; }
+.topbar-logo { font-size: 15px; font-weight: 800; color: #fff; letter-spacing: -0.3px; }
+.topbar-logo span { color: #22c55e; }
+.topbar-badge { font-size: 10px; padding: 3px 10px; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); border-radius: 20px; color: #22c55e; font-weight: 600; letter-spacing: 0.5px; }
+.topbar-right { display: flex; align-items: center; gap: 14px; }
+.topbar-time { font-size: 11px; color: #555; font-family: monospace; }
+.logout-btn { font-size: 11px; color: #6b7280; background: none; border: 1px solid #2a2d3a; padding: 5px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+.logout-btn:hover { color: #f87171; border-color: rgba(248,113,113,0.3); }
+
+/* NAV */
+.nav { background: #1a1d27; border-bottom: 1px solid #2a2d3a; padding: 0 24px; display: flex; overflow-x: auto; }
+.nav-item { padding: 13px 18px; font-size: 12px; color: #6b7280; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: color 0.2s; user-select: none; font-weight: 500; }
+.nav-item:hover { color: #e5e7eb; }
+.nav-item.active { color: #22c55e; border-bottom-color: #22c55e; }
+
+/* PAGES */
+.page { display: none; padding: 24px; max-width: 1200px; margin: 0 auto; }
+.page.active { display: block; }
+.page-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; color: #fff; }
+.page-sub { font-size: 12px; color: #555; margin-bottom: 24px; }
+
+/* STAT CARDS */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+.stat-card { background: #1a1d27; border: 1px solid #2a2d3a; border-radius: 12px; padding: 20px; }
+.stat-label { font-size: 10px; color: #555; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 8px; font-weight: 600; }
+.stat-value { font-size: 30px; font-weight: 700; line-height: 1; margin-bottom: 4px; color: #fff; }
+.stat-sub { font-size: 11px; color: #444; }
+
+/* PANEL */
+.panel { background: #1a1d27; border: 1px solid #2a2d3a; border-radius: 12px; overflow: hidden; margin-bottom: 16px; }
+.panel-header { padding: 14px 18px; border-bottom: 1px solid #2a2d3a; display: flex; justify-content: space-between; align-items: center; }
+.panel-title { font-size: 12px; font-weight: 600; color: #e5e7eb; }
+.panel-count { font-size: 11px; color: #555; font-family: monospace; }
+
+/* TABLE */
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th { padding: 10px 16px; text-align: left; font-size: 10px; color: #555; letter-spacing: 0.8px; text-transform: uppercase; border-bottom: 1px solid #2a2d3a; font-weight: 600; background: #161820; }
+.data-table td { padding: 13px 16px; font-size: 12px; border-bottom: 1px solid #1e2130; vertical-align: middle; color: #e5e7eb; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* BADGES */
+.badge { display: inline-block; font-size: 10px; padding: 3px 8px; border-radius: 8px; font-weight: 600; }
+.badge-green { background: rgba(34,197,94,0.15); color: #22c55e; }
+.badge-red { background: rgba(239,68,68,0.15); color: #f87171; }
+.badge-blue { background: rgba(59,130,246,0.15); color: #60a5fa; }
+.badge-amber { background: rgba(245,158,11,0.15); color: #fbbf24; }
+.badge-gray { background: rgba(107,114,128,0.2); color: #9ca3af; }
+
+/* BUTTONS */
+.action-link { font-size: 11px; color: #6b7280; cursor: pointer; padding: 4px 10px; border-radius: 6px; border: 1px solid #2a2d3a; background: none; transition: all 0.2s; font-weight: 500; margin-right: 4px; }
+.action-link:hover { color: #e5e7eb; border-color: #3a3d4a; }
+.action-link.danger:hover { color: #f87171; border-color: rgba(248,113,113,0.3); background: rgba(239,68,68,0.05); }
+.action-link.primary { color: #22c55e; border-color: rgba(34,197,94,0.3); }
+.action-link.primary:hover { background: rgba(34,197,94,0.1); }
+.submit-btn { padding: 10px 22px; background: #22c55e; color: #000; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+.submit-btn:hover { background: #16a34a; color: #fff; }
+.secondary-btn { padding: 9px 18px; background: none; color: #6b7280; border: 1px solid #2a2d3a; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+.secondary-btn:hover { color: #e5e7eb; border-color: #3a3d4a; }
+
+/* FORM */
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.inline-input { padding: 10px 12px; background: #0f1117; border: 1px solid #2a2d3a; border-radius: 8px; color: #e5e7eb; font-size: 13px; width: 100%; transition: border-color 0.2s; }
+.inline-input:focus { outline: none; border-color: #22c55e; }
+.inline-input::placeholder { color: #3a3d4a; }
+
+/* EMPTY */
+.empty-state { padding: 48px; text-align: center; color: #333; font-size: 13px; }
+
+/* ESTATE CARD */
+.estate-card { padding: 18px; border-bottom: 1px solid #1e2130; transition: background 0.15s; }
+.estate-card:last-child { border-bottom: none; }
+.estate-card:hover { background: rgba(255,255,255,0.02); }
+.estate-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+.estate-name { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 3px; }
+.estate-meta { font-size: 11px; color: #555; }
+.estate-stats { display: flex; gap: 16px; margin-top: 8px; }
+.estate-stat { font-size: 11px; color: #555; }
+.estate-stat strong { color: #9ca3af; font-size: 13px; }
+
+/* REPORT SECTION */
+.report-card { background: #1a1d27; border: 1px solid #2a2d3a; border-radius: 12px; padding: 20px; margin-bottom: 12px; }
+.report-title { font-size: 13px; font-weight: 600; color: #e5e7eb; margin-bottom: 6px; }
+.report-desc { font-size: 12px; color: #555; margin-bottom: 14px; line-height: 1.6; }
+
+/* CONFIRM */
+.confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 600; align-items: center; justify-content: center; padding: 20px; }
+.confirm-overlay.open { display: flex; }
+.confirm-box { background: #1a1d27; border: 1px solid #2a2d3a; border-radius: 12px; padding: 28px; max-width: 380px; width: 100%; }
+.confirm-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: #fff; }
+.confirm-msg { font-size: 13px; color: #6b7280; margin-bottom: 24px; line-height: 1.6; }
+.confirm-btns { display: flex; gap: 10px; justify-content: flex-end; }
+.confirm-cancel { padding: 9px 18px; background: none; border: 1px solid #2a2d3a; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; color: #6b7280; }
+.confirm-cancel:hover { color: #e5e7eb; }
+.confirm-ok { padding: 9px 18px; background: #ef4444; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; color: #fff; }
+.confirm-ok:hover { background: #dc2626; }
+
+/* SPINNER / TOAST */
+.spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #2a2d3a; border-top-color: #22c55e; border-radius: 50%; animation: spin 0.6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.toast-wrap { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
+.toast { padding: 12px 18px; border-radius: 8px; font-size: 12px; font-weight: 500; animation: slideIn 0.2s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+@keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+.toast-success { background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+.toast-error { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+.toast-info { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+
+@media (max-width: 768px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .form-row, .form-row-3 { grid-template-columns: 1fr; }
+  .page { padding: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <svg width="36" height="36" viewBox="0 0 48 48" fill="none">
+        <circle cx="20" cy="24" r="13" stroke="#22c55e" stroke-width="4" stroke-linecap="round" stroke-dasharray="70 12"/>
+        <line x1="20" y1="24" x2="33" y2="24" stroke="#22c55e" stroke-width="4" stroke-linecap="round"/>
+        <line x1="33" y1="12" x2="33" y2="38" stroke="#22c55e" stroke-width="4" stroke-linecap="round"/>
+        <path d="M33 12 Q44 12 44 20 Q44 28 33 28" stroke="#22c55e" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+      </svg>
+      <div>
+        <div class="login-logo-text">IGATA <span>Control</span></div>
+        <div class="login-logo-sub">GATEPASS PLATFORM</div>
+      </div>
+    </div>
+    <div class="login-heading">Super admin access</div>
+    <div class="login-sub">Internal use only · IGATA Consulting Technologies</div>
+    <label class="field-label">Master email</label>
+    <input class="field-input" type="email" id="login-email" placeholder="your@igata.com" onkeydown="if(event.key==='Enter') document.getElementById('login-password').focus()"/>
+    <label class="field-label">Master password</label>
+    <input class="field-input" type="password" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter') doLogin()"/>
+    <button class="login-btn" id="login-btn" onclick="doLogin()">Access platform</button>
+    <div class="login-error" id="login-error">Invalid credentials</div>
+    <div class="login-footer">IGATA Consulting Technologies · Private</div>
+  </div>
+</div>
+
+<!-- CONSOLE -->
+<div class="console" id="console">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo">IGATA <span>Control</span></div>
+      <div class="topbar-badge">SUPER ADMIN</div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-time" id="topbar-time"></div>
+      <button class="logout-btn" onclick="doLogout()">Sign out</button>
+    </div>
+  </div>
+
+  <div class="nav">
+    <div class="nav-item active" onclick="showPage('overview', this)">Platform overview</div>
+    <div class="nav-item" onclick="showPage('estates', this)">Estates</div>
+    <div class="nav-item" onclick="showPage('add-estate', this)">Add estate</div>
+    <div class="nav-item" onclick="showPage('reports', this)">Reports</div>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div class="page active" id="page-overview">
+    <div class="page-title">Platform overview</div>
+    <div class="page-sub" id="overview-date">Loading...</div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">Active estates</div><div class="stat-value" id="stat-estates" style="color:#22c55e;">—</div><div class="stat-sub">Deployed tenants</div></div>
+      <div class="stat-card"><div class="stat-label">Total residents</div><div class="stat-value" id="stat-residents">—</div><div class="stat-sub">Across all estates</div></div>
+      <div class="stat-card"><div class="stat-label">Passes today</div><div class="stat-value" id="stat-passes" style="color:#60a5fa;">—</div><div class="stat-sub">All estates combined</div></div>
+      <div class="stat-card"><div class="stat-label">Open incidents</div><div class="stat-value" id="stat-incidents" style="color:#fbbf24;">—</div><div class="stat-sub">Requires attention</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title">All estates — live status</div><div class="panel-count" id="estates-live-count"></div></div>
+      <table class="data-table">
+        <thead><tr><th>Estate</th><th>Prefix</th><th>WhatsApp</th><th>Residents</th><th>Passes today</th><th>Status</th></tr></thead>
+        <tbody id="overview-tbody"><tr><td colspan="6" class="empty-state"><div class="spinner"></div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ESTATES -->
+  <div class="page" id="page-estates">
+    <div class="page-title">Estate management</div>
+    <div class="page-sub">All tenants on the GatePass platform</div>
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">All estates</div>
+        <div class="panel-count" id="estates-count">Loading...</div>
+      </div>
+      <div id="estates-list"><div class="empty-state"><div class="spinner"></div></div></div>
+    </div>
+  </div>
+
+  <!-- ADD ESTATE -->
+  <div class="page" id="page-add-estate">
+    <div class="page-title">Add new estate</div>
+    <div class="page-sub">Onboard a new tenant onto the GatePass platform</div>
+
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title">Estate details</div></div>
+      <div style="padding:20px;">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="field-label">Estate name</label>
+            <input class="inline-input" id="e-name" placeholder="e.g. Lekki Phase 1 Estate"/>
+          </div>
+          <div class="form-group">
+            <label class="field-label">City / Location</label>
+            <input class="inline-input" id="e-city" placeholder="e.g. Lagos"/>
+          </div>
+        </div>
+        <div class="form-row-3">
+          <div class="form-group">
+            <label class="field-label">Pass prefix (2–4 letters)</label>
+            <input class="inline-input" id="e-prefix" placeholder="e.g. LP1" maxlength="4" style="text-transform:uppercase;"/>
+          </div>
+          <div class="form-group">
+            <label class="field-label">WhatsApp number (with country code)</label>
+            <input class="inline-input" id="e-whatsapp" placeholder="e.g. 2348012345678"/>
+          </div>
+          <div class="form-group">
+            <label class="field-label">Estate type</label>
+            <select class="inline-input" id="e-type">
+              <option value="estate">Gated estate</option>
+              <option value="compound">Compound / block of flats</option>
+              <option value="private">Private home with security</option>
+              <option value="commercial">Commercial premises</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="border-top:1px solid #2a2d3a;margin:20px 0;padding-top:20px;">
+          <div style="font-size:11px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:14px;">Admin credentials for this estate</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="field-label">Admin email</label>
+              <input class="inline-input" id="e-admin-email" placeholder="admin@estate.com"/>
+            </div>
+            <div class="form-group">
+              <label class="field-label">Admin password</label>
+              <input class="inline-input" id="e-admin-password" placeholder="Set a strong password"/>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:8px;">
+          <button class="submit-btn" onclick="addEstate()">Create estate</button>
+          <button class="secondary-btn" onclick="clearEstateForm()">Clear</button>
+        </div>
+
+        <div id="add-estate-result" style="display:none;margin-top:16px;padding:16px;border-radius:8px;font-size:13px;line-height:1.8;"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title">After creating an estate</div></div>
+      <div style="padding:18px;">
+        <ol style="font-size:12px;color:#555;line-height:2.4;padding-left:18px;">
+          <li>Add the WhatsApp number to your Meta Business WhatsApp account</li>
+          <li>Update the webhook URL in Twilio to handle the new number</li>
+          <li>Share the admin email and password with the estate ExCo</li>
+          <li>ExCo logs into <code style="background:#0f1117;padding:2px 6px;border-radius:4px;color:#22c55e;">gatepass-bamishile.netlify.app/admin.html</code> and starts adding residents</li>
+          <li>Residents message the WhatsApp number to create passes</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- REPORTS -->
+  <div class="page" id="page-reports">
+    <div class="page-title">Reports</div>
+    <div class="page-sub">Manually trigger reports for all estates</div>
+
+    <div class="report-card">
+      <div class="report-title">Weekly operations report</div>
+      <div class="report-desc">Sends a 7-day summary to the report email for every active estate. Normally fires automatically every Sunday at 8pm Lagos time.</div>
+      <button class="submit-btn" onclick="triggerReport('weekly')" id="btn-weekly">Send weekly report now</button>
+    </div>
+
+    <div class="report-card">
+      <div class="report-title">Monthly operations report</div>
+      <div class="report-desc">Sends a 31-day summary to the report email for every active estate. Normally fires automatically on the last day of each month.</div>
+      <button class="submit-btn" onclick="triggerReport('monthly')" id="btn-monthly">Send monthly report now</button>
+    </div>
+
+    <div class="panel" style="margin-top:8px;">
+      <div class="panel-header"><div class="panel-title">Report schedule</div></div>
+      <div style="padding:18px;">
+        <table class="data-table">
+          <thead><tr><th>Report</th><th>Schedule</th><th>Recipients</th></tr></thead>
+          <tbody>
+            <tr><td>Weekly operations</td><td>Every Sunday · 8:00 PM Lagos</td><td id="report-email-weekly">—</td></tr>
+            <tr><td>Monthly operations</td><td>Last day of month · 8:00 PM Lagos</td><td id="report-email-monthly">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirm-title">Confirm</div>
+    <div class="confirm-msg" id="confirm-msg"></div>
+    <div class="confirm-btns">
+      <button class="confirm-cancel" onclick="closeConfirm()">Cancel</button>
+      <button class="confirm-ok" onclick="runConfirm()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+const SERVER = 'https://gatepass-bamishile-production.up.railway.app';
+let masterPassword = '';
+let clockTimer = null;
+let confirmCallback = null;
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const btn = document.getElementById('login-btn');
+  const err = document.getElementById('login-error');
+  err.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Verifying...';
+
+  try {
+    // Use the first active estate ID for auth — master credentials work on any estate
+    const res = await fetch(`${SERVER}/api/admin/auth`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, estate_id: 'f4f8e8f2-4fe2-44a8-bbf9-fcae62cd37ad' }),
+    });
+    const data = await res.json();
+    if (data.success && data.role === 'superadmin') {
+      masterPassword = password;
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('console').style.display = 'block';
+      startClock();
+      loadOverview();
+      loadEstates();
+    } else {
+      err.style.display = 'block';
+      err.textContent = 'Invalid credentials or insufficient access level';
+    }
+  } catch {
+    err.style.display = 'block';
+    err.textContent = 'Connection error. Check server status.';
+  }
+  btn.disabled = false; btn.textContent = 'Access platform';
+}
+
+function doLogout() {
+  masterPassword = '';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('console').style.display = 'none';
+  if (clockTimer) clearInterval(clockTimer);
+}
+
+function startClock() {
+  const tick = () => { document.getElementById('topbar-time').textContent = new Date().toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Africa/Lagos' }); };
+  tick(); clockTimer = setInterval(tick, 1000);
+}
+
+function showPage(page, el) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(`page-${page}`).classList.add('active');
+  if (page === 'reports') loadReportInfo();
+}
+
+async function loadOverview() {
+  try {
+    document.getElementById('overview-date').textContent = new Date().toLocaleDateString('en-NG', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Africa/Lagos' });
+    const res = await fetch(`${SERVER}/api/superadmin/overview`, {
+      headers: { 'x-admin-secret': masterPassword }
+    });
+    if (!res.ok) throw new Error('Not authorized');
+    const data = await res.json();
+
+    document.getElementById('stat-estates').textContent = data.total_estates || 0;
+    document.getElementById('stat-residents').textContent = data.total_residents || 0;
+    document.getElementById('stat-passes').textContent = data.total_passes_today || 0;
+    document.getElementById('stat-incidents').textContent = data.total_incidents || 0;
+    document.getElementById('estates-live-count').textContent = `${data.total_estates || 0} estates`;
+
+    const tbody = document.getElementById('overview-tbody');
+    if (!data.estates || data.estates.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No estates yet</td></tr>';
+    } else {
+      tbody.innerHTML = data.estates.map(e => `<tr>
+        <td><div style="font-weight:600;color:#fff;">${e.name}</div><div style="font-size:11px;color:#555;">${e.city||''}</div></td>
+        <td><span style="font-family:monospace;font-size:12px;color:#22c55e;">${e.pass_prefix}</span></td>
+        <td style="font-family:monospace;font-size:11px;color:#6b7280;">+${e.whatsapp_number}</td>
+        <td style="color:#9ca3af;">${e.resident_count||0}</td>
+        <td style="color:#60a5fa;">${e.passes_today||0}</td>
+        <td>${e.is_active ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-red">Inactive</span>'}</td>
+      </tr>`).join('');
+    }
+  } catch (e) {
+    console.error('Overview error:', e);
+    document.getElementById('overview-tbody').innerHTML = '<tr><td colspan="6" class="empty-state">Could not load overview</td></tr>';
+  }
+}
+
+async function loadEstates() {
+  try {
+    const res = await fetch(`${SERVER}/api/superadmin/estates`, {
+      headers: { 'x-admin-secret': masterPassword }
+    });
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    document.getElementById('estates-count').textContent = `${data.estates.length} total`;
+    const list = document.getElementById('estates-list');
+    if (data.estates.length === 0) {
+      list.innerHTML = '<div class="empty-state">No estates yet. Add your first estate.</div>';
+    } else {
+      list.innerHTML = data.estates.map(e => `
+        <div class="estate-card">
+          <div class="estate-header">
+            <div>
+              <div class="estate-name">${e.name}</div>
+              <div class="estate-meta">Prefix: ${e.pass_prefix} · WhatsApp: +${e.whatsapp_number} · ${e.estate_type||'estate'}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              ${e.is_active ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-red">Inactive</span>'}
+              <button class="action-link danger" onclick="confirmToggleEstate('${e.id}', ${e.is_active}, '${e.name.replace(/'/g,"\\'")}')">
+                ${e.is_active ? 'Deactivate' : 'Activate'}
+              </button>
+            </div>
+          </div>
+          <div style="font-size:11px;color:#555;">Admin: ${e.admin_email||'Not set'}</div>
+        </div>`).join('');
+    }
+  } catch (e) {
+    document.getElementById('estates-list').innerHTML = '<div class="empty-state">Could not load estates</div>';
+  }
+}
+
+async function addEstate() {
+  const name = document.getElementById('e-name').value.trim();
+  const city = document.getElementById('e-city').value.trim();
+  const prefix = document.getElementById('e-prefix').value.trim().toUpperCase();
+  const whatsapp = document.getElementById('e-whatsapp').value.trim();
+  const type = document.getElementById('e-type').value;
+  const adminEmail = document.getElementById('e-admin-email').value.trim();
+  const adminPassword = document.getElementById('e-admin-password').value.trim();
+
+  if (!name || !prefix || !whatsapp || !adminEmail || !adminPassword) {
+    showToast('Please fill in all required fields', 'error'); return;
+  }
+  if (prefix.length < 2) { showToast('Prefix must be at least 2 letters', 'error'); return; }
+
+  try {
+    const res = await fetch(`${SERVER}/api/superadmin/estates`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-secret': masterPassword },
+      body: JSON.stringify({ name, city, pass_prefix: prefix, whatsapp_number: whatsapp, estate_type: type, admin_email: adminEmail, admin_password: adminPassword }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      const result = document.getElementById('add-estate-result');
+      result.style.display = 'block';
+      result.style.background = 'rgba(34,197,94,0.1)';
+      result.style.border = '1px solid rgba(34,197,94,0.3)';
+      result.style.color = '#22c55e';
+      result.innerHTML = `✓ Estate created successfully<br><br>
+        <strong>Estate:</strong> ${name}<br>
+        <strong>Pass prefix:</strong> ${prefix}<br>
+        <strong>WhatsApp:</strong> +${whatsapp}<br>
+        <strong>Admin login:</strong> ${adminEmail}<br><br>
+        Share the admin email and password with the estate ExCo.`;
+      clearEstateForm();
+      loadEstates();
+      loadOverview();
+      showToast(`${name} created`, 'success');
+    } else {
+      showToast(data.error || 'Could not create estate', 'error');
+    }
+  } catch { showToast('Connection error', 'error'); }
+}
+
+function clearEstateForm() {
+  ['e-name','e-city','e-prefix','e-whatsapp','e-admin-email','e-admin-password'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('add-estate-result').style.display = 'none';
+}
+
+function confirmToggleEstate(id, isActive, name) {
+  showConfirm(
+    isActive ? 'Deactivate estate' : 'Activate estate',
+    isActive ? `Deactivating ${name} will prevent all residents from creating passes and block gate access. You can reactivate it at any time.` : `Reactivating ${name} will restore full access for all residents and gates.`,
+    async () => {
+      try {
+        await fetch(`${SERVER}/api/superadmin/estates/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', 'x-admin-secret': masterPassword },
+          body: JSON.stringify({ is_active: !isActive }),
+        });
+        showToast(`${name} ${isActive ? 'deactivated' : 'activated'}`, 'success');
+        loadEstates(); loadOverview();
+      } catch { showToast('Connection error', 'error'); }
+    }
+  );
+}
+
+async function triggerReport(period) {
+  const btn = document.getElementById(`btn-${period}`);
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  showToast('Generating report — this may take a moment', 'info');
+  try {
+    const res = await fetch(`${SERVER}/api/admin/trigger-report`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secret: masterPassword, period }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(`Report sent to ${data.sent} estate${data.sent !== 1 ? 's' : ''}`, 'success');
+    } else {
+      showToast(data.error || 'Report failed', 'error');
+    }
+  } catch { showToast('Connection error', 'error'); }
+  btn.disabled = false;
+  btn.textContent = period === 'weekly' ? 'Send weekly report now' : 'Send monthly report now';
+}
+
+function loadReportInfo() {
+  document.getElementById('report-email-weekly').textContent = '(configured in Railway)';
+  document.getElementById('report-email-monthly').textContent = '(configured in Railway)';
+}
+
+function showConfirm(title, msg, cb) {
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-msg').textContent = msg;
+  confirmCallback = cb;
+  document.getElementById('confirm-overlay').classList.add('open');
+}
+function closeConfirm() { document.getElementById('confirm-overlay').classList.remove('open'); confirmCallback = null; }
+function runConfirm() { closeConfirm(); if (confirmCallback) confirmCallback(); }
+
+function showToast(msg, type = 'success') {
+  const w = document.getElementById('toast-wrap');
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  t.textContent = msg;
+  w.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+document.getElementById('confirm-overlay').addEventListener('click', e => { if (e.target === document.getElementById('confirm-overlay')) closeConfirm(); });
+</script>
+</body>
+</html>
