@@ -266,12 +266,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
           </div>
         </div>
         <div id="fields-admin" style="display:none;">
-          <div class="form-row">
-            <div class="form-group"><label class="form-label">Full name</label><input class="inline-input" id="a-name" placeholder="ExCo member full name"/></div>
-            <div class="form-group"><label class="form-label">WhatsApp number</label><input class="inline-input" id="a-phone" placeholder="2348012345678"/></div>
+          <div style="padding:16px;background:#f9fafb;border-radius:8px;border-left:3px solid #166534;margin-bottom:12px;">
+            <div style="font-size:13px;font-weight:600;color:#111;margin-bottom:6px;">ExCo members must first be registered as residents</div>
+            <div style="font-size:12px;color:#888;line-height:1.7;">An ExCo admin is a resident who also has estate management responsibilities. First add them as a <strong>Resident</strong> using their house number and WhatsApp. Then find them in the list below and their role will show as resident — the ExCo share the admin console login credentials.</div>
           </div>
-          <div style="font-size:12px;color:#888;margin-bottom:14px;line-height:1.7;">ExCo admins share the estate console login. They can manage the dashboard but cannot generate passes unless also registered as a resident.</div>
-          <button class="submit-btn" onclick="addResident()">Add ExCo admin</button>
+          <div style="font-size:12px;color:#166534;font-weight:500;">To elevate a resident to ExCo: register them as a Resident first, then the estate shares the admin console email and password with them directly.</div>
         </div>
         <div id="fields-security" style="display:none;">
           <div class="form-row">
@@ -443,10 +442,9 @@ async function doLogin() {
     });
     const data = await res.json();
     if (data.success) {
-      document.getElementById('login-screen').style.display = 'none';
-      document.getElementById('console').style.display = 'block';
-      document.getElementById('topbar-estate').textContent = ESTATE_NAME;
-      startClock(); loadDashboard(); loadResidents(); setGateUrls();
+      const session = { email, password, ts: Date.now() };
+      localStorage.setItem('gp_session', JSON.stringify(session));
+      showConsole();
     } else {
       err.style.display = 'block';
       err.textContent = data.reason || 'Incorrect email or password';
@@ -458,6 +456,7 @@ async function doLogin() {
 }
 
 function doLogout() {
+  localStorage.removeItem('gp_session');
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('console').style.display = 'none';
   document.getElementById('login-email').value = '';
@@ -465,6 +464,35 @@ function doLogout() {
   if (dashboardTimer) clearTimeout(dashboardTimer);
   if (clockTimer) clearInterval(clockTimer);
 }
+
+function showConsole() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('console').style.display = 'block';
+  document.getElementById('topbar-estate').textContent = ESTATE_NAME;
+  startClock(); loadDashboard(); loadResidents(); setGateUrls();
+}
+
+// Auto-login from localStorage session (12 hour expiry)
+(async function checkSession() {
+  try {
+    const raw = localStorage.getItem('gp_session');
+    if (!raw) return;
+    const session = JSON.parse(raw);
+    const TWELVE_HOURS = 12 * 60 * 60 * 1000;
+    if (Date.now() - session.ts > TWELVE_HOURS) {
+      localStorage.removeItem('gp_session');
+      return;
+    }
+    // Verify session is still valid
+    const res = await fetch(`${SERVER}/api/admin/auth`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: session.email, password: session.password, estate_id: ESTATE_ID }),
+    });
+    const data = await res.json();
+    if (data.success) { showConsole(); }
+    else { localStorage.removeItem('gp_session'); }
+  } catch { /* silent fail, show login */ }
+})();
 
 function startClock() {
   const tick = () => { document.getElementById('topbar-time').textContent = new Date().toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Africa/Lagos' }); };
@@ -590,10 +618,16 @@ async function toggleResident(id, current) {
 }
 
 function confirmDeleteResident(id, name) {
-  showConfirm('Delete resident', `This will permanently delete ${name} and all their household members. Pass history will remain. This cannot be undone.`, async () => {
+  showConfirm('Delete resident', `This will remove ${name} from the estate. Their visitor pass history will be preserved. This cannot be undone.`, async () => {
     try {
-      await fetch(`${SERVER}/api/admin/residents/${id}`, { method: 'DELETE' });
-      showToast(`${name} deleted`, 'success'); loadResidents();
+      const res = await fetch(`${SERVER}/api/admin/residents/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        showToast(`${name} removed`, 'success');
+        await loadResidents();
+      } else {
+        showToast(data.error || 'Could not remove resident', 'error');
+      }
     } catch { showToast('Connection error', 'error'); }
   });
 }
@@ -653,8 +687,18 @@ async function loadIncidents() {
 function confirmClearLogs() {
   showConfirm('Clear all incident logs', 'This will permanently delete all incident records. Gate logs and pass history are not affected. This cannot be undone.', async () => {
     try {
-      await fetch(`${SERVER}/api/admin/incidents/clear`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ estate_id: ESTATE_ID }) });
-      showToast('Incident logs cleared', 'success'); loadIncidents();
+      const res = await fetch(`${SERVER}/api/admin/incidents/clear`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ estate_id: ESTATE_ID })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('Incident logs cleared', 'success');
+        await loadIncidents();
+      } else {
+        showToast('Could not clear logs', 'error');
+      }
     } catch { showToast('Connection error', 'error'); }
   });
 }
