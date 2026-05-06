@@ -43,7 +43,7 @@ async function sendEmail(to, subject, text) {
   if (RESEND_API_KEY) {
     try {
       const body = JSON.stringify({
-        from: 'GatePass <reports@igata.ng>',
+        from: 'GatePass <onboarding@resend.dev>',
         to: [to],
         subject,
         text,
@@ -1326,6 +1326,30 @@ app.delete('/api/admin/incidents/clear', async (req, res) => {
 });
 
 // ================================================
+// SECURITY — HISTORY ENDPOINT (30 day pass history)
+// ================================================
+app.get('/api/security/history', async (req, res) => {
+  const { estate_id, days } = req.query;
+  if (!estate_id) return res.status(400).json({ error: 'estate_id required' });
+  try {
+    const daysBack = Math.min(parseInt(days) || 7, 30);
+    const from = new Date(Date.now() - daysBack * 24 * 60 * 60 * 1000).toISOString();
+    const { data, error } = await supabase
+      .from('visitors')
+      .select('*')
+      .eq('estate_id', estate_id)
+      .gte('created_at', from)
+      .order('created_at', { ascending: false })
+      .limit(500);
+    if (error) throw error;
+    res.json({ passes: data || [] });
+  } catch (err) {
+    console.error('Security history error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ================================================
 // SUPERADMIN MIDDLEWARE
 // ================================================
 function requireSuperAdmin(req, res, next) {
@@ -1341,7 +1365,7 @@ function requireSuperAdmin(req, res, next) {
 // ================================================
 app.get('/api/superadmin/overview', requireSuperAdmin, async (req, res) => {
   try {
-    const { data: estates } = await supabase.from('estates').select('*').eq('is_active', true);
+    const { data: estates } = await supabase.from('estates').select('*');
     const { data: allResidents } = await supabase.from('residents').select('estate_id').eq('is_active', true);
 
     const today = new Date(); today.setHours(0, 0, 0, 0);
