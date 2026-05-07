@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -537,10 +538,11 @@ async function loadResidents() {
   try {
     const res = await fetch(`${SERVER}/api/admin/residents?estate_id=${ESTATE_ID}`);
     const data = await res.json();
-    document.getElementById('residents-count').textContent = `${data.residents.length} registered`;
-    document.getElementById('residents-tbody').innerHTML = data.residents.length === 0
+    const activeResidents = data.residents.filter(r => !r.whatsapp_number?.startsWith('DELETED_'));
+    document.getElementById('residents-count').textContent = `${activeResidents.length} registered`;
+    document.getElementById('residents-tbody').innerHTML = activeResidents.length === 0
       ? '<tr><td colspan="6" class="empty-state">No residents registered</td></tr>'
-      : data.residents.filter(r => !r.whatsapp_number?.startsWith('DELETED_')).map(r => `<tr>
+      : activeResidents.map(r => `<tr>
           <td><div style="font-weight:600;">${r.house_number||'—'}</div>${r.flat_unit ? `<div style="font-size:11px;color:#888;">${r.flat_unit}</div>` : ''}</td>
           <td>${r.resident_name}</td>
           <td style="font-family:monospace;font-size:11px;color:#888;">+${r.whatsapp_number}</td>
@@ -687,7 +689,7 @@ async function loadIncidents() {
 function confirmClearLogs() {
   showConfirm('Clear all incident logs', 'This will permanently delete all incident records. Gate logs and pass history are not affected. This cannot be undone.', async () => {
     try {
-      const res = await fetch(`${SERVER}/api/admin/incidents/clear`, {
+      const res = await fetch(`${SERVER}/api/admin/incidents/clear?estate_id=${ESTATE_ID}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ estate_id: ESTATE_ID })
