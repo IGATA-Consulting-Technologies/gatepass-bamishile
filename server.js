@@ -1310,7 +1310,7 @@ app.delete('/api/admin/household-members/:id', async (req, res) => {
 // ADMIN API — CLEAR INCIDENT LOGS
 // ================================================
 app.delete('/api/admin/incidents/clear', async (req, res) => {
-  const { estate_id } = req.body;
+  const estate_id = req.body?.estate_id || req.query?.estate_id;
   if (!estate_id) return res.status(400).json({ error: 'estate_id required' });
   try {
     const { error } = await supabase
