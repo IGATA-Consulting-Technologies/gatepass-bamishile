@@ -914,6 +914,10 @@ app.get('/api/verify/:passCode', async (req, res) => {
     const validTo = new Date(pass.valid_to);
 
     if (now > validTo || pass.status === 'expired') {
+      // If visitor is still checked in, allow exit even on expired pass
+      if (pass.status === 'checked_in') {
+        return res.json({ valid: true, action: 'EXIT', message: 'Visitor inside — check out (pass expired)', pass });
+      }
       await supabase.from('visitors').update({ status: 'expired' }).eq('pass_code', passCode);
       await writeLog(passCode, 'denied', `Gate-${gateId}`, 'Pass expired', pass.estate_id, gateId);
       return res.json({ valid: false, reason: 'Pass has expired', action: 'DENY', pass });
@@ -1251,14 +1255,18 @@ app.delete('/api/admin/residents/:id', async (req, res) => {
     // Expire unused household invites
     await supabase.from('household_invites').update({ used: true }).eq('resident_id', id);
     // Soft delete: deactivate and clear WhatsApp so number can be reused
+    const deletedTag = `DELETED_${id.substring(0, 8)}_${Date.now()}`;
     const { error } = await supabase.from('residents')
       .update({
         is_active: false,
-        whatsapp_number: `DELETED_${id}`,
+        whatsapp_number: deletedTag,
         resident_name: `[Deleted] ${id.substring(0, 8)}`,
       })
       .eq('id', id);
-    if (error) throw error;
+    if (error) {
+      console.error('Soft delete error:', error);
+      throw error;
+    }
     res.json({ success: true });
   } catch (err) {
     console.error('Delete resident error:', err);
