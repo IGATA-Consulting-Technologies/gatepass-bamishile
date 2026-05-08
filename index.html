@@ -12,409 +12,152 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #080808; color: #f0ede8; min-height: 100vh; min-height: 100dvh; }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: #080808;
-  color: #f0ede8;
-  min-height: 100vh;
-  min-height: 100dvh;
-}
-
-/* HEADER */
-.header {
-  background: #111;
-  padding: 14px 16px;
-  border-bottom: 1px solid #1e1e1e;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
+.header { background: #111; padding: 14px 16px; border-bottom: 1px solid #1e1e1e; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
 .header-left { display: flex; flex-direction: column; gap: 2px; }
 .header-estate { font-size: 13px; font-weight: 600; letter-spacing: 0.3px; }
 .header-gate { font-size: 11px; color: #666; }
-
-.header-right { display: flex; align-items: center; gap: 10px; }
-
-.sync-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: #22c55e;
-  transition: background 0.3s;
-}
+.header-right { display: flex; align-items: center; gap: 8px; }
+.sync-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; transition: background 0.3s; flex-shrink: 0; }
 .sync-dot.offline { background: #f0a500; }
+.duty-badge { font-size: 10px; padding: 4px 10px; border-radius: 20px; background: #0d2e1a; color: #22c55e; border: 1px solid #166534; letter-spacing: 0.3px; }
+.command-toggle { font-size: 10px; padding: 4px 10px; border-radius: 20px; background: #111; color: #555; border: 1px solid #2a2a2a; letter-spacing: 0.3px; cursor: pointer; transition: all 0.2s; user-select: none; }
+.command-toggle.active { background: #1e1535; color: #a78bfa; border-color: #4c1d95; }
 
-.duty-badge {
-  font-size: 10px;
-  padding: 4px 10px;
-  border-radius: 20px;
-  background: #0d2e1a;
-  color: #22c55e;
-  border: 1px solid #166534;
-  letter-spacing: 0.3px;
-}
-
-/* TABS */
-.tabs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  background: #111;
-  border-bottom: 1px solid #1e1e1e;
-}
-
-.tab {
-  padding: 11px;
-  text-align: center;
-  font-size: 13px;
-  color: #555;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: color 0.2s, border-color 0.2s;
-  user-select: none;
-}
-
+.tabs { display: grid; grid-template-columns: 1fr 1fr; background: #111; border-bottom: 1px solid #1e1e1e; }
+.tab { padding: 11px; text-align: center; font-size: 13px; color: #555; cursor: pointer; border-bottom: 2px solid transparent; transition: color 0.2s, border-color 0.2s; user-select: none; }
 .tab.active { color: #f0ede8; border-bottom-color: #22c55e; }
 
-/* CONTENT */
 .content { padding: 14px; max-width: 480px; margin: 0 auto; }
 
-/* SCAN PANEL */
-.scan-box {
-  background: #111;
-  border-radius: 10px;
-  border: 1px solid #1e1e1e;
-  overflow: hidden;
-  margin-bottom: 12px;
-}
-
+.scan-box { background: #111; border-radius: 10px; border: 1px solid #1e1e1e; overflow: hidden; margin-bottom: 12px; }
 #reader { width: 100%; }
-
-.scan-hint {
-  padding: 10px;
-  text-align: center;
-  font-size: 12px;
-  color: #555;
-}
-
-.primary-btn {
-  width: 100%;
-  padding: 14px;
-  border: none;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  transition: opacity 0.2s;
-}
-
+.scan-hint { padding: 10px; text-align: center; font-size: 12px; color: #555; }
+.primary-btn { width: 100%; padding: 14px; border: none; font-size: 14px; font-weight: 500; cursor: pointer; border-radius: 8px; margin-bottom: 10px; transition: opacity 0.2s; }
 .primary-btn:active { opacity: 0.8; }
 .btn-green { background: #166534; color: #f0ede8; }
 .btn-red-soft { background: #3d1515; color: #f87171; }
 
-/* CODE INPUT */
-.code-input-row {
-  display: flex;
-  gap: 0;
-  margin-bottom: 12px;
-}
-
-.code-prefix {
-  padding: 14px 12px;
-  background: #1a1a1a;
-  border: 1px solid #2a2a2a;
-  border-right: none;
-  border-radius: 8px 0 0 8px;
-  color: #22c55e;
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-  user-select: none;
-}
-
-.code-input {
-  flex: 1;
-  padding: 14px;
-  background: #111;
-  border: 1px solid #2a2a2a;
-  border-radius: 0 0 0 0;
-  color: #f0ede8;
-  font-size: 24px;
-  letter-spacing: 6px;
-  font-weight: 700;
-  transition: border-color 0.2s;
-  min-width: 0;
-}
-
+.code-input-row { display: flex; gap: 0; margin-bottom: 12px; }
+.code-prefix { padding: 14px 12px; background: #1a1a1a; border: 1px solid #2a2a2a; border-right: none; border-radius: 8px 0 0 8px; color: #22c55e; font-size: 20px; font-weight: 700; letter-spacing: 2px; display: flex; align-items: center; white-space: nowrap; user-select: none; }
+.code-input { flex: 1; padding: 14px; background: #111; border: 1px solid #2a2a2a; border-radius: 0; color: #f0ede8; font-size: 24px; letter-spacing: 6px; font-weight: 700; transition: border-color 0.2s; min-width: 0; }
 .code-input:focus { outline: none; border-color: #444; }
 .code-input::placeholder { color: #333; letter-spacing: 2px; font-size: 18px; font-weight: 400; }
+.check-btn { padding: 14px 18px; background: #166534; color: #f0ede8; border: none; border-radius: 0 8px 8px 0; font-size: 14px; font-weight: 500; cursor: pointer; }
 
-.check-btn {
-  padding: 14px 18px;
-  background: #166534;
-  color: #f0ede8;
-  border: none;
-  border-radius: 0 8px 8px 0;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-/* RESULT CARDS */
-.result-card {
-  border-radius: 10px;
-  overflow: hidden;
-  margin-bottom: 12px;
-  display: none;
-}
-
+.result-card { border-radius: 10px; overflow: hidden; margin-bottom: 12px; display: none; }
 .result-card.show { display: block; }
-
-.result-header {
-  padding: 12px 16px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
+.result-header { padding: 12px 16px; display: flex; align-items: center; gap: 10px; }
 .result-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 .result-label { font-size: 13px; font-weight: 600; letter-spacing: 0.3px; }
-
 .result-body { padding: 16px; background: #111; }
-
 .visitor-name { font-size: 20px; font-weight: 600; margin-bottom: 2px; line-height: 1.2; }
 .visitor-unit { font-size: 12px; color: #666; margin-bottom: 14px; }
-
-.detail-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 7px 0;
-  border-bottom: 1px solid #1a1a1a;
-  font-size: 12px;
-}
-
+.detail-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #1a1a1a; font-size: 12px; }
 .detail-row:last-of-type { border-bottom: none; }
 .detail-key { color: #555; }
 .detail-val { font-weight: 500; color: #f0ede8; text-align: right; max-width: 60%; }
-
-.action-btn {
-  width: 100%;
-  padding: 15px;
-  border: none;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 14px;
-  transition: opacity 0.2s;
-}
-
+.action-btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 14px; transition: opacity 0.2s; }
 .action-btn:active { opacity: 0.8; }
 .btn-admit { background: #166534; color: #f0ede8; }
 .btn-checkout { background: #1e3a5f; color: #f0ede8; }
 .btn-standing { background: #2d1f5e; color: #c4b5fd; }
-
-/* CARD VARIANTS */
 .card-entry .result-header { background: #0d2e1a; }
 .card-entry .result-dot { background: #22c55e; }
 .card-entry .result-label { color: #22c55e; }
-
 .card-exit .result-header { background: #0c1f3a; }
 .card-exit .result-dot { background: #60a5fa; }
 .card-exit .result-label { color: #60a5fa; }
-
 .card-standing .result-header { background: #1e1535; }
 .card-standing .result-dot { background: #a78bfa; }
 .card-standing .result-label { color: #a78bfa; }
-
 .card-denied .result-header { background: #2d0a0a; }
 .card-denied .result-dot { background: #ef4444; }
 .card-denied .result-label { color: #ef4444; }
 
-/* LOADING */
-.loading {
-  text-align: center;
-  padding: 20px;
-  color: #555;
-  font-size: 13px;
-  display: none;
-}
+.loading { text-align: center; padding: 20px; color: #555; font-size: 13px; display: none; }
 .loading.show { display: block; }
-
-/* CONFIRMATION TOAST */
-.toast {
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 500;
-  margin-bottom: 10px;
-  display: none;
-  text-align: center;
-}
+.toast { padding: 12px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; margin-bottom: 10px; display: none; text-align: center; }
 .toast.show { display: block; }
 .toast-success { background: #0d2e1a; color: #22c55e; border: 1px solid #166534; }
 .toast-error { background: #2d0a0a; color: #f87171; border: 1px solid #7f1d1d; }
 
-/* INCIDENT BUTTON */
-.incident-btn {
-  width: 100%;
-  padding: 12px;
-  background: transparent;
-  border: 1px solid #2a2a2a;
-  border-radius: 8px;
-  color: #f0a500;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  margin-bottom: 12px;
-  transition: background 0.2s;
-}
+.incident-btn { width: 100%; padding: 12px; background: transparent; border: 1px solid #2a2a2a; border-radius: 8px; color: #f0a500; font-size: 13px; font-weight: 500; cursor: pointer; margin-bottom: 12px; transition: background 0.2s; }
 .incident-btn:active { background: #1a1000; }
 
-/* INCIDENT MODAL */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.8);
-  z-index: 200;
-  display: none;
-  align-items: flex-end;
-  justify-content: center;
-  padding: 0;
-}
-.modal-overlay.show { display: flex; }
-
-.modal {
-  background: #111;
-  border-radius: 16px 16px 0 0;
-  border-top: 1px solid #222;
-  padding: 20px 16px 32px;
-  width: 100%;
-  max-width: 480px;
-}
-
-.modal-title {
-  font-size: 15px;
-  font-weight: 600;
-  margin-bottom: 16px;
-  color: #f0a500;
-}
-
-.modal-label {
-  font-size: 11px;
-  color: #666;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  margin-bottom: 6px;
-  margin-top: 12px;
-}
-
-.modal-textarea {
-  width: 100%;
-  background: #1a1a1a;
-  border: 1px solid #2a2a2a;
-  border-radius: 8px;
-  color: #f0ede8;
-  font-size: 14px;
-  padding: 12px;
-  resize: none;
-  height: 90px;
-  font-family: inherit;
-}
-
-.modal-textarea:focus { outline: none; border-color: #444; }
-
-.severity-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.severity-btn {
-  padding: 10px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  text-align: center;
-  border: 1px solid #2a2a2a;
-  background: #1a1a1a;
-  color: #666;
-  transition: all 0.15s;
-}
-
-.severity-btn.selected-low { background: #0d2e1a; color: #22c55e; border-color: #166534; }
-.severity-btn.selected-medium { background: #1a1000; color: #f0a500; border-color: #854f0b; }
-.severity-btn.selected-high { background: #2d0a0a; color: #ef4444; border-color: #7f1d1d; }
-
-.modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
-
-.modal-cancel {
-  padding: 13px;
-  background: #1a1a1a;
-  border: 1px solid #2a2a2a;
-  border-radius: 8px;
-  color: #666;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.modal-submit {
-  padding: 13px;
-  background: #854f0b;
-  border: none;
-  border-radius: 8px;
-  color: #f0ede8;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-/* LOG */
 .log-section { margin-top: 6px; }
-.log-title {
-  font-size: 10px;
-  color: #333;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 8px;
-}
-
-.log-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 12px;
-  background: #111;
-  border-radius: 6px;
-  margin-bottom: 4px;
-  font-size: 12px;
-}
-
+.log-title { font-size: 10px; color: #333; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.log-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #111; border-radius: 6px; margin-bottom: 4px; font-size: 12px; }
 .log-name { color: #aaa; }
-.log-badge {
-  font-size: 10px;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-weight: 500;
-}
+.log-badge { font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 500; }
 .log-entry { background: #0d2e1a; color: #22c55e; }
 .log-exit { background: #0c1f3a; color: #60a5fa; }
 .log-denied { background: #2d0a0a; color: #ef4444; }
 .log-standing { background: #1e1535; color: #a78bfa; }
+
+/* COMMAND VIEW — light theme for readability */
+#command-view { display: none; background: #f8f9fa; min-height: 100vh; }
+#command-view.show { display: block; }
+.cmd-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.cmd-stat { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+.cmd-stat-label { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; font-weight: 500; }
+.cmd-stat-value { font-size: 28px; font-weight: 600; line-height: 1; }
+.cmd-stat-green { color: #166534; }
+.cmd-stat-blue { color: #1d4ed8; }
+
+.cmd-section { margin-bottom: 14px; }
+.cmd-section-header { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
+.cmd-refresh { font-size: 11px; cursor: pointer; padding: 4px 10px; border: 1px solid #e5e7eb; border-radius: 6px; background: #fff; color: #555; font-weight: 500; }
+.cmd-refresh:active { background: #f3f4f6; }
+
+.cmd-item { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 14px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+.cmd-item-left { display: flex; flex-direction: column; gap: 3px; }
+.cmd-item-name { font-size: 13px; font-weight: 500; color: #111; }
+.cmd-item-sub { font-size: 11px; color: #888; }
+.cmd-item-time { font-size: 12px; color: #aaa; font-family: monospace; }
+
+.cmd-empty { text-align: center; padding: 24px; color: #bbb; font-size: 12px; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; }
+
+.filter-row { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.filter-btn { padding: 5px 12px; border-radius: 20px; font-size: 11px; cursor: pointer; border: 1px solid #e5e7eb; background: #fff; color: #888; transition: all 0.15s; font-weight: 500; }
+.filter-btn.active { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
+
+.history-item { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px 14px; margin-bottom: 6px; }
+.history-item-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
+.history-name { font-size: 12px; font-weight: 500; color: #111; }
+.history-badge { font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+.h-active { background: #dcfce7; color: #166534; }
+.h-checked_in { background: #dbeafe; color: #1d4ed8; }
+.h-checked_out { background: #f3f4f6; color: #6b7280; }
+.h-cancelled { background: #fef3c7; color: #92400e; }
+.h-expired { background: #fee2e2; color: #dc2626; }
+.history-sub { font-size: 11px; color: #aaa; }
+
+.cmd-incident-item { background: #fff; border: 1px solid #fecaca; border-radius: 8px; padding: 12px 14px; margin-bottom: 6px; border-left: 3px solid #ef4444; }
+.cmd-incident-name { font-size: 13px; font-weight: 500; color: #111; margin-bottom: 3px; }
+.cmd-incident-sub { font-size: 11px; color: #888; }
+
+/* INCIDENT MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; display: none; align-items: flex-end; justify-content: center; padding: 0; }
+.modal-overlay.show { display: flex; }
+.modal { background: #111; border-radius: 16px 16px 0 0; border-top: 1px solid #222; padding: 20px 16px 32px; width: 100%; max-width: 480px; }
+.modal-title { font-size: 15px; font-weight: 600; margin-bottom: 16px; color: #f0a500; }
+.modal-label { font-size: 11px; color: #666; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; margin-top: 12px; }
+.modal-textarea { width: 100%; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 8px; color: #f0ede8; font-size: 14px; padding: 12px; resize: none; height: 90px; font-family: inherit; }
+.modal-textarea:focus { outline: none; border-color: #444; }
+.severity-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+.severity-btn { padding: 10px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; text-align: center; border: 1px solid #2a2a2a; background: #1a1a1a; color: #666; transition: all 0.15s; }
+.severity-btn.selected-low { background: #0d2e1a; color: #22c55e; border-color: #166534; }
+.severity-btn.selected-medium { background: #1a1000; color: #f0a500; border-color: #854f0b; }
+.severity-btn.selected-high { background: #2d0a0a; color: #ef4444; border-color: #7f1d1d; }
+.modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
+.modal-cancel { padding: 13px; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 8px; color: #666; font-size: 14px; cursor: pointer; }
+.modal-submit { padding: 13px; background: #854f0b; border: none; border-radius: 8px; color: #f0ede8; font-size: 14px; font-weight: 500; cursor: pointer; }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <div class="header">
   <div class="header-left">
     <div class="header-estate" id="estate-name">GatePass</div>
@@ -423,145 +166,125 @@ body {
   <div class="header-right">
     <div class="sync-dot" id="sync-dot" title="Online"></div>
     <div class="duty-badge">On duty</div>
+    <div class="command-toggle" id="command-toggle" onclick="toggleCommand()" title="Command view">Command</div>
   </div>
 </div>
 
-<!-- TABS -->
-<div class="tabs">
+<div class="tabs" id="scanner-tabs">
   <div class="tab active" id="tab-scan" onclick="switchTab('scan')">Scan QR</div>
   <div class="tab" id="tab-code" onclick="switchTab('code')">Enter Code</div>
 </div>
 
-<div class="content">
-
-  <!-- SCAN PANEL -->
-  <div id="scan-panel">
-    <div class="scan-box">
-      <div id="reader"></div>
-      <div class="scan-hint" id="scan-hint">Camera will open here</div>
-    </div>
-    <button class="primary-btn btn-green" id="start-btn" onclick="startScan()">Start Camera Scanner</button>
-    <button class="primary-btn btn-red-soft" id="stop-btn" onclick="stopScan()" style="display:none;">Stop Scanner</button>
-  </div>
-
-  <!-- CODE PANEL -->
-  <div id="code-panel" style="display:none;">
-    <div class="code-input-row">
-      <div class="code-prefix" id="code-prefix">BE-</div>
-      <input
-        class="code-input"
-        id="code-field"
-        placeholder="0000"
-        maxlength="4"
-        inputmode="numeric"
-        oninput="this.value=this.value.replace(/[^0-9]/g,''); if(this.value.length===4) verifyCode()"
-        onkeydown="if(event.key==='Enter') verifyCode()"
-        autocomplete="off"
-        autocorrect="off"
-        spellcheck="false"
-      />
-      <button class="check-btn" onclick="verifyCode()">Check</button>
-    </div>
-  </div>
-
-  <!-- TOAST -->
-  <div class="toast" id="toast"></div>
-
-  <!-- LOADING -->
-  <div class="loading" id="loading">Checking pass...</div>
-
-  <!-- RESULT: ENTRY -->
-  <div class="result-card card-entry" id="card-entry">
-    <div class="result-header">
-      <div class="result-dot"></div>
-      <div class="result-label">Valid — Admit visitor</div>
-    </div>
-    <div class="result-body">
-      <div class="visitor-name" id="entry-name"></div>
-      <div class="visitor-unit" id="entry-unit"></div>
-      <div class="detail-row">
-        <span class="detail-key">Pass code</span>
-        <span class="detail-val" id="entry-code"></span>
+<!-- SCANNER VIEW -->
+<div id="scanner-view">
+  <div class="content">
+    <div id="scan-panel">
+      <div class="scan-box">
+        <div id="reader"></div>
+        <div class="scan-hint" id="scan-hint">Camera will open here</div>
       </div>
-      <div class="detail-row">
-        <span class="detail-key">Valid until</span>
-        <span class="detail-val" id="entry-valid"></span>
-      </div>
-      <div class="detail-row">
-        <span class="detail-key">Issued for</span>
-        <span class="detail-val" id="entry-house"></span>
-      </div>
-      <button class="action-btn btn-admit" onclick="admitVisitor()">Admit visitor</button>
+      <button class="primary-btn btn-green" id="start-btn" onclick="startScan()">Start Camera Scanner</button>
+      <button class="primary-btn btn-red-soft" id="stop-btn" onclick="stopScan()" style="display:none;">Stop Scanner</button>
     </div>
-  </div>
 
-  <!-- RESULT: EXIT -->
-  <div class="result-card card-exit" id="card-exit">
-    <div class="result-header">
-      <div class="result-dot"></div>
-      <div class="result-label">Inside estate — Check out</div>
+    <div id="code-panel" style="display:none;">
+      <div class="code-input-row">
+        <div class="code-prefix" id="code-prefix">BE-</div>
+        <input class="code-input" id="code-field" placeholder="0000" maxlength="4" inputmode="numeric"
+          oninput="this.value=this.value.replace(/[^0-9]/g,''); if(this.value.length===4) verifyCode()"
+          onkeydown="if(event.key==='Enter') verifyCode()"
+          autocomplete="off" autocorrect="off" spellcheck="false"/>
+        <button class="check-btn" onclick="verifyCode()">Check</button>
+      </div>
     </div>
-    <div class="result-body">
-      <div class="visitor-name" id="exit-name"></div>
-      <div class="visitor-unit" id="exit-unit"></div>
-      <div class="detail-row">
-        <span class="detail-key">Pass code</span>
-        <span class="detail-val" id="exit-code"></span>
+
+    <div class="toast" id="toast"></div>
+    <div class="loading" id="loading">Checking pass...</div>
+
+    <div class="result-card card-entry" id="card-entry">
+      <div class="result-header"><div class="result-dot"></div><div class="result-label">Valid — Admit visitor</div></div>
+      <div class="result-body">
+        <div class="visitor-name" id="entry-name"></div>
+        <div class="visitor-unit" id="entry-unit"></div>
+        <div class="detail-row"><span class="detail-key">Pass code</span><span class="detail-val" id="entry-code"></span></div>
+        <div class="detail-row"><span class="detail-key">Valid until</span><span class="detail-val" id="entry-valid"></span></div>
+        <div class="detail-row"><span class="detail-key">Issued for</span><span class="detail-val" id="entry-house"></span></div>
+        <button class="action-btn btn-admit" onclick="admitVisitor()">Admit visitor</button>
       </div>
-      <div class="detail-row">
-        <span class="detail-key">Entered at</span>
-        <span class="detail-val" id="exit-entry-time"></span>
+    </div>
+
+    <div class="result-card card-exit" id="card-exit">
+      <div class="result-header"><div class="result-dot"></div><div class="result-label">Inside estate — Check out</div></div>
+      <div class="result-body">
+        <div class="visitor-name" id="exit-name"></div>
+        <div class="visitor-unit" id="exit-unit"></div>
+        <div class="detail-row"><span class="detail-key">Pass code</span><span class="detail-val" id="exit-code"></span></div>
+        <div class="detail-row"><span class="detail-key">Entered at</span><span class="detail-val" id="exit-entry-time"></span></div>
+        <button class="action-btn btn-checkout" onclick="checkoutVisitor()">Check out visitor</button>
       </div>
-      <button class="action-btn btn-checkout" onclick="checkoutVisitor()">Check out visitor</button>
+    </div>
+
+    <div class="result-card card-standing" id="card-standing">
+      <div class="result-header"><div class="result-dot"></div><div class="result-label">Standing access — Admit</div></div>
+      <div class="result-body">
+        <div class="visitor-name" id="standing-name"></div>
+        <div class="visitor-unit" id="standing-unit"></div>
+        <div class="detail-row"><span class="detail-key">Pass code</span><span class="detail-val" id="standing-code"></span></div>
+        <div class="detail-row"><span class="detail-key">Relationship</span><span class="detail-val" id="standing-rel"></span></div>
+        <button class="action-btn btn-standing" onclick="admitStanding()">Admit — standing pass</button>
+      </div>
+    </div>
+
+    <div class="result-card card-denied" id="card-denied">
+      <div class="result-header"><div class="result-dot"></div><div class="result-label">Access Denied</div></div>
+      <div class="result-body">
+        <div class="visitor-name" id="denied-reason" style="font-size:15px;color:#ef4444;"></div>
+        <div class="visitor-unit" id="denied-code"></div>
+        <div class="detail-row"><span class="detail-key">Action required</span><span class="detail-val">Call resident to re-issue pass</span></div>
+      </div>
+    </div>
+
+    <button class="incident-btn" onclick="openIncident()">⚑ Report incident at this gate</button>
+
+    <div class="log-section">
+      <div class="log-title">Shift activity</div>
+      <div id="log-list"></div>
     </div>
   </div>
+</div>
 
-  <!-- RESULT: STANDING -->
-  <div class="result-card card-standing" id="card-standing">
-    <div class="result-header">
-      <div class="result-dot"></div>
-      <div class="result-label">Standing access — Admit</div>
+<!-- COMMAND VIEW -->
+<div id="command-view">
+  <div class="content">
+    <div class="cmd-stats" id="cmd-stats">
+      <div class="cmd-stat"><div class="cmd-stat-label">Inside now</div><div class="cmd-stat-value cmd-stat-green" id="cmd-inside">—</div></div>
+      <div class="cmd-stat"><div class="cmd-stat-label">Passes today</div><div class="cmd-stat-value cmd-stat-blue" id="cmd-today">—</div></div>
     </div>
-    <div class="result-body">
-      <div class="visitor-name" id="standing-name"></div>
-      <div class="visitor-unit" id="standing-unit"></div>
-      <div class="detail-row">
-        <span class="detail-key">Pass code</span>
-        <span class="detail-val" id="standing-code"></span>
+
+    <div class="cmd-section">
+      <div class="cmd-section-header">
+        <span>Currently inside</span>
+        <button class="cmd-refresh" onclick="loadCommand()">Refresh</button>
       </div>
-      <div class="detail-row">
-        <span class="detail-key">Relationship</span>
-        <span class="detail-val" id="standing-rel"></span>
+      <div id="cmd-inside-list"><div class="cmd-empty">Loading...</div></div>
+    </div>
+
+    <div class="cmd-section">
+      <div class="cmd-section-header"><span>Visitor history</span></div>
+      <div class="filter-row">
+        <div class="filter-btn active" id="flt-1" onclick="setFilter(1, this)">Today</div>
+        <div class="filter-btn" id="flt-7" onclick="setFilter(7, this)">7 days</div>
+        <div class="filter-btn" id="flt-14" onclick="setFilter(14, this)">14 days</div>
+        <div class="filter-btn" id="flt-30" onclick="setFilter(30, this)">30 days</div>
       </div>
-      <button class="action-btn btn-standing" onclick="admitStanding()">Admit — standing pass</button>
+      <div id="cmd-history-list"><div class="cmd-empty">Loading...</div></div>
+    </div>
+
+    <div class="cmd-section">
+      <div class="cmd-section-header"><span>Open incidents</span></div>
+      <div id="cmd-incidents-list"><div class="cmd-empty">Loading...</div></div>
     </div>
   </div>
-
-  <!-- RESULT: DENIED -->
-  <div class="result-card card-denied" id="card-denied">
-    <div class="result-header">
-      <div class="result-dot"></div>
-      <div class="result-label">Access Denied</div>
-    </div>
-    <div class="result-body">
-      <div class="visitor-name" id="denied-reason" style="font-size:15px; color:#ef4444;"></div>
-      <div class="visitor-unit" id="denied-code"></div>
-      <div class="detail-row">
-        <span class="detail-key">Action required</span>
-        <span class="detail-val">Call resident to re-issue pass</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- INCIDENT BUTTON -->
-  <button class="incident-btn" onclick="openIncident()">⚑ Report incident at this gate</button>
-
-  <!-- LOG -->
-  <div class="log-section">
-    <div class="log-title">Shift activity</div>
-    <div id="log-list"></div>
-  </div>
-
 </div>
 
 <!-- INCIDENT MODAL -->
@@ -585,27 +308,21 @@ body {
 
 <script>
 const SERVER = 'https://gatepass-bamishile-production.up.railway.app';
-
-// Read URL params
 const params = new URLSearchParams(window.location.search);
 const GATE_ID = params.get('gate') || 'main';
 const ESTATE_ID = params.get('estate') || 'f4f8e8f2-4fe2-44a8-bbf9-fcae62cd37ad';
-
-// Pass prefix from URL or default to BE
 const PASS_PREFIX = params.get('prefix') || 'BE';
-
-const GATE_NAMES = {
-  main: 'Main Gate — Bamishile Entrance',
-  community: 'Community Street Gate',
-};
+const GATE_NAMES = { main: 'Main Gate — Bamishile Entrance', community: 'Community Street Gate' };
 
 let currentPass = null;
 let scanner = null;
 let scannerRunning = false;
 let selectedSeverity = 'low';
 let isOnline = navigator.onLine;
+let commandMode = false;
+let commandRefreshTimer = null;
+let currentFilterDays = 1;
 
-// ── INIT ──
 document.getElementById('gate-label').textContent = GATE_NAMES[GATE_ID] || `Gate — ${GATE_ID}`;
 document.getElementById('code-prefix').textContent = `${PASS_PREFIX}-`;
 
@@ -618,7 +335,89 @@ function updateSyncDot() {
   dot.title = isOnline ? 'Online' : 'Offline — using cached data';
 }
 
-// ── TAB SWITCHING ──
+function toggleCommand() {
+  commandMode = !commandMode;
+  const toggle = document.getElementById('command-toggle');
+  const scannerView = document.getElementById('scanner-view');
+  const commandView = document.getElementById('command-view');
+  const tabs = document.getElementById('scanner-tabs');
+
+  toggle.classList.toggle('active', commandMode);
+  toggle.textContent = commandMode ? '← Scanner' : 'Command';
+  scannerView.style.display = commandMode ? 'none' : 'block';
+  commandView.classList.toggle('show', commandMode);
+  tabs.style.display = commandMode ? 'none' : 'grid';
+
+  if (commandMode) {
+    loadCommand();
+    commandRefreshTimer = setInterval(loadCommand, 30000);
+  } else {
+    if (commandRefreshTimer) clearInterval(commandRefreshTimer);
+  }
+}
+
+async function loadCommand() {
+  try {
+    const res = await fetch(`${SERVER}/api/admin/dashboard?estate_id=${ESTATE_ID}`);
+    const data = await res.json();
+    document.getElementById('cmd-inside').textContent = data.summary.inside_now;
+    document.getElementById('cmd-today').textContent = data.summary.total_today;
+
+    const insideList = document.getElementById('cmd-inside-list');
+    const inside = data.inside_now || [];
+    insideList.innerHTML = inside.length === 0
+      ? '<div class="cmd-empty">No visitors inside the estate</div>'
+      : inside.map(p => `
+          <div class="cmd-item">
+            <div class="cmd-item-left">
+              <div class="cmd-item-name">${p.visitor_name}</div>
+              <div class="cmd-item-sub">${p.house_number} · ${p.pass_code}</div>
+            </div>
+            <div class="cmd-item-time">${formatTime(p.entry_time)}</div>
+          </div>`).join('');
+
+    const incidents = data.open_incidents || [];
+    document.getElementById('cmd-incidents-list').innerHTML = incidents.length === 0
+      ? '<div class="cmd-empty">No open incidents</div>'
+      : incidents.map(i => `
+          <div class="cmd-incident-item">
+            <div class="cmd-incident-name">${i.description}</div>
+            <div class="cmd-incident-sub">${i.gate_id} gate · ${formatTime(i.created_at)} · ${severityLabel(i.severity)}</div>
+          </div>`).join('');
+  } catch (e) { console.error('Command load error:', e); }
+
+  loadHistory(currentFilterDays);
+}
+
+async function loadHistory(days) {
+  const list = document.getElementById('cmd-history-list');
+  list.innerHTML = '<div class="cmd-empty">Loading...</div>';
+  try {
+    const res = await fetch(`${SERVER}/api/security/history?estate_id=${ESTATE_ID}&days=${days}`);
+    const data = await res.json();
+    const passes = data.passes || [];
+    list.innerHTML = passes.length === 0
+      ? '<div class="cmd-empty">No passes in this period</div>'
+      : passes.map(p => `
+          <div class="history-item">
+            <div class="history-item-top">
+              <div class="history-name">${p.visitor_name}</div>
+              <span class="history-badge h-${p.status}">${p.status.replace('_',' ')}</span>
+            </div>
+            <div class="history-sub">${p.house_number||'—'} · ${p.pass_code} · ${formatDate(p.created_at)}</div>
+          </div>`).join('');
+  } catch (e) {
+    list.innerHTML = '<div class="cmd-empty">Could not load history</div>';
+  }
+}
+
+function setFilter(days, el) {
+  currentFilterDays = days;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  loadHistory(days);
+}
+
 function switchTab(tab) {
   document.getElementById('tab-scan').classList.toggle('active', tab === 'scan');
   document.getElementById('tab-code').classList.toggle('active', tab === 'code');
@@ -631,77 +430,53 @@ function switchTab(tab) {
   }
 }
 
-// ── QR SCANNER ──
 function startScan() {
   document.getElementById('start-btn').style.display = 'none';
   document.getElementById('stop-btn').style.display = 'block';
   document.getElementById('scan-hint').textContent = 'Point camera at QR code';
-
   scanner = new Html5Qrcode('reader');
   scanner.start(
     { facingMode: 'environment' },
     { fps: 10, qrbox: { width: 240, height: 240 } },
-    (decodedText) => {
-      stopScan();
-      setTimeout(() => verify(decodedText.trim().toUpperCase()), 600);
-    },
+    (decodedText) => { stopScan(); setTimeout(() => verify(decodedText.trim().toUpperCase()), 600); },
     () => {}
-  ).catch(err => {
-    showToast('Camera access denied. Use Enter Code tab.', 'error');
-    stopScan();
-  });
+  ).catch(() => { showToast('Camera access denied. Use Enter Code tab.', 'error'); stopScan(); });
   scannerRunning = true;
 }
 
 function stopScan() {
-  if (scanner && scannerRunning) {
-    scanner.stop().catch(() => {});
-    scannerRunning = false;
-  }
+  if (scanner && scannerRunning) { scanner.stop().catch(() => {}); scannerRunning = false; }
   document.getElementById('start-btn').style.display = 'block';
   document.getElementById('stop-btn').style.display = 'none';
   document.getElementById('scan-hint').textContent = 'Camera stopped';
 }
 
-// ── VERIFY FROM CODE INPUT ──
 function verifyCode() {
   const digits = document.getElementById('code-field').value.trim();
   if (digits.length < 4) return;
-  const prefix = document.getElementById('code-prefix').textContent.trim();
-  verify(`${prefix}${digits}`);
+  verify(`${PASS_PREFIX}-${digits}`);
 }
 
-// ── CORE VERIFY ──
 async function verify(passCode) {
   clearResults();
   showLoading(true);
   currentPass = passCode;
-
   try {
     const res = await fetch(`${SERVER}/api/verify/${passCode}?gate=${GATE_ID}`);
     const data = await res.json();
     showLoading(false);
     handleResult(data, passCode);
-  } catch (err) {
+  } catch {
     showLoading(false);
     showDenied('Connection error — check network', passCode);
   }
 }
 
-// ── HANDLE RESULT ──
 function handleResult(data, passCode) {
-  if (!data.valid) {
-    showDenied(data.reason || 'Invalid pass', passCode);
-    addLog(passCode, 'denied');
-    return;
-  }
-
+  if (!data.valid) { showDenied(data.reason || 'Invalid pass', passCode); addLog(passCode, 'denied'); return; }
   const pass = data.pass;
-
   if (data.action === 'ENTRY') {
-    const validTo = new Date(pass.valid_to).toLocaleTimeString('en-NG', {
-      hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Lagos'
-    });
+    const validTo = new Date(pass.valid_to).toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Lagos' });
     document.getElementById('entry-name').textContent = pass.visitor_name;
     document.getElementById('entry-unit').textContent = `Visiting ${pass.house_number}`;
     document.getElementById('entry-code').textContent = passCode;
@@ -709,20 +484,14 @@ function handleResult(data, passCode) {
     document.getElementById('entry-house').textContent = pass.house_number;
     document.getElementById('card-entry').classList.add('show');
   }
-
   if (data.action === 'EXIT') {
-    const entryTime = pass.entry_time
-      ? new Date(pass.entry_time).toLocaleTimeString('en-NG', {
-          hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Lagos'
-        })
-      : 'Unknown';
+    const entryTime = pass.entry_time ? new Date(pass.entry_time).toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Lagos' }) : 'Unknown';
     document.getElementById('exit-name').textContent = pass.visitor_name;
     document.getElementById('exit-unit').textContent = `Visiting ${pass.house_number}`;
     document.getElementById('exit-code').textContent = passCode;
     document.getElementById('exit-entry-time').textContent = entryTime;
     document.getElementById('card-exit').classList.add('show');
   }
-
   if (data.action === 'STANDING') {
     document.getElementById('standing-name').textContent = pass.visitor_name;
     document.getElementById('standing-unit').textContent = `Visiting ${pass.house_number}`;
@@ -732,24 +501,15 @@ function handleResult(data, passCode) {
   }
 }
 
-// ── ADMIT ──
 async function admitVisitor() {
   if (!currentPass) return;
   try {
     const res = await fetch(`${SERVER}/api/entry/${currentPass}?gate=${GATE_ID}`, { method: 'POST' });
     const data = await res.json();
-    if (data.success) {
-      addLog(currentPass, 'entry');
-      clearResults();
-      showToast('Visitor admitted successfully', 'success');
-      document.getElementById('code-field').value = '';
-    }
-  } catch {
-    showToast('Connection error. Try again.', 'error');
-  }
+    if (data.success) { addLog(currentPass, 'entry'); clearResults(); showToast('Visitor admitted successfully', 'success'); document.getElementById('code-field').value = ''; }
+  } catch { showToast('Connection error. Try again.', 'error'); }
 }
 
-// ── ADMIT STANDING ──
 async function admitStanding() {
   addLog(currentPass, 'standing');
   clearResults();
@@ -757,117 +517,64 @@ async function admitStanding() {
   document.getElementById('code-field').value = '';
 }
 
-// ── CHECKOUT ──
 async function checkoutVisitor() {
   if (!currentPass) return;
   try {
     const res = await fetch(`${SERVER}/api/exit/${currentPass}?gate=${GATE_ID}`, { method: 'POST' });
     const data = await res.json();
-    if (data.success) {
-      addLog(currentPass, 'exit');
-      clearResults();
-      showToast('Visitor checked out successfully', 'success');
-      document.getElementById('code-field').value = '';
-    }
-  } catch {
-    showToast('Connection error. Try again.', 'error');
-  }
+    if (data.success) { addLog(currentPass, 'exit'); clearResults(); showToast('Visitor checked out successfully', 'success'); document.getElementById('code-field').value = ''; }
+  } catch { showToast('Connection error. Try again.', 'error'); }
 }
 
-// ── INCIDENT ──
-function openIncident() {
-  document.getElementById('incident-desc').value = '';
-  setSeverity('low');
-  document.getElementById('modal-overlay').classList.add('show');
-}
-
-function closeIncident() {
-  document.getElementById('modal-overlay').classList.remove('show');
-}
-
+function openIncident() { document.getElementById('incident-desc').value = ''; setSeverity('low'); document.getElementById('modal-overlay').classList.add('show'); }
+function closeIncident() { document.getElementById('modal-overlay').classList.remove('show'); }
 function setSeverity(level) {
   selectedSeverity = level;
-  ['low','medium','high'].forEach(l => {
-    const btn = document.getElementById(`sev-${l}`);
-    btn.className = 'severity-btn';
-    if (l === level) btn.classList.add(`selected-${l}`);
-  });
+  ['low','medium','high'].forEach(l => { const btn = document.getElementById(`sev-${l}`); btn.className = 'severity-btn'; if (l === level) btn.classList.add(`selected-${l}`); });
 }
-
 async function submitIncident() {
   const desc = document.getElementById('incident-desc').value.trim();
-  if (!desc) {
-    showToast('Please describe the incident', 'error');
-    return;
-  }
-
+  if (!desc) { showToast('Please describe the incident', 'error'); return; }
   try {
     await fetch(`${SERVER}/api/incident`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        estate_id: ESTATE_ID,
-        gate_id: GATE_ID,
-        description: desc,
-        severity: selectedSeverity,
-        reported_by: `Guard · ${GATE_NAMES[GATE_ID] || GATE_ID}`,
-      }),
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ estate_id: ESTATE_ID, gate_id: GATE_ID, description: desc, severity: selectedSeverity, reported_by: `Guard · ${GATE_NAMES[GATE_ID] || GATE_ID}` }),
     });
     closeIncident();
     showToast('Incident reported to security command', 'success');
-  } catch {
-    showToast('Could not submit. Try again.', 'error');
-  }
+  } catch { showToast('Could not submit. Try again.', 'error'); }
 }
 
-// ── HELPERS ──
 function showDenied(reason, code) {
   document.getElementById('denied-reason').textContent = reason;
   document.getElementById('denied-code').textContent = code;
   document.getElementById('card-denied').classList.add('show');
 }
-
 function clearResults() {
-  ['card-entry','card-exit','card-standing','card-denied'].forEach(id => {
-    document.getElementById(id).classList.remove('show');
-  });
-  const toast = document.getElementById('toast');
-  toast.classList.remove('show');
+  ['card-entry','card-exit','card-standing','card-denied'].forEach(id => document.getElementById(id).classList.remove('show'));
+  document.getElementById('toast').classList.remove('show');
 }
-
-function showLoading(show) {
-  document.getElementById('loading').className = show ? 'loading show' : 'loading';
-}
-
+function showLoading(show) { document.getElementById('loading').className = show ? 'loading show' : 'loading'; }
 function showToast(msg, type) {
   const toast = document.getElementById('toast');
-  toast.textContent = msg;
-  toast.className = `toast show toast-${type}`;
+  toast.textContent = msg; toast.className = `toast show toast-${type}`;
   setTimeout(() => toast.classList.remove('show'), 3000);
 }
-
 function addLog(code, status) {
   const list = document.getElementById('log-list');
   const item = document.createElement('div');
   item.className = 'log-item';
-  const time = new Date().toLocaleTimeString('en-NG', {
-    hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Lagos'
-  });
-  const badges = {
-    entry: '<span class="log-badge log-entry">admitted</span>',
-    exit: '<span class="log-badge log-exit">exited</span>',
-    denied: '<span class="log-badge log-denied">denied</span>',
-    standing: '<span class="log-badge log-standing">standing</span>',
-  };
+  const time = new Date().toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Lagos' });
+  const badges = { entry: '<span class="log-badge log-entry">admitted</span>', exit: '<span class="log-badge log-exit">exited</span>', denied: '<span class="log-badge log-denied">denied</span>', standing: '<span class="log-badge log-standing">standing</span>' };
   item.innerHTML = `<span class="log-name">${code} · ${time}</span>${badges[status] || ''}`;
   list.insertBefore(item, list.firstChild);
   if (list.children.length > 8) list.removeChild(list.lastChild);
 }
+function formatTime(iso) { if (!iso) return '—'; return new Date(iso).toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Lagos' }); }
+function formatDate(iso) { if (!iso) return '—'; return new Date(iso).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', timeZone: 'Africa/Lagos' }); }
+function severityLabel(s) { return s === 'high' ? '🔴 High' : s === 'medium' ? '🟡 Medium' : '🟢 Low'; }
 
-// Close modal on overlay tap
-document.getElementById('modal-overlay').addEventListener('click', function(e) {
-  if (e.target === this) closeIncident();
-});
+document.getElementById('modal-overlay').addEventListener('click', function(e) { if (e.target === this) closeIncident(); });
 </script>
 </body>
 </html>
