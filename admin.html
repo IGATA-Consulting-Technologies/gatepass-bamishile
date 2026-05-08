@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -144,7 +143,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 <body>
 
 <!-- LOGIN -->
-<div class="login-wrap" id="login-screen">
+<div class="login-wrap" id="login-screen" style="display:none;">
   <div class="login-card">
     <div class="login-logo-mark">
       <svg class="login-gp" viewBox="0 0 48 48" fill="none">
@@ -477,7 +476,7 @@ function showConsole() {
 (async function checkSession() {
   try {
     const raw = localStorage.getItem('gp_session');
-    if (!raw) return;
+    if (!raw) { document.getElementById('login-screen').style.display = 'flex'; return; }
     const session = JSON.parse(raw);
     const TWELVE_HOURS = 12 * 60 * 60 * 1000;
     if (Date.now() - session.ts > TWELVE_HOURS) {
@@ -492,7 +491,9 @@ function showConsole() {
     const data = await res.json();
     if (data.success) { showConsole(); }
     else { localStorage.removeItem('gp_session'); }
-  } catch { /* silent fail, show login */ }
+  } catch {
+    document.getElementById('login-screen').style.display = 'flex';
+  }
 })();
 
 function startClock() {
@@ -719,7 +720,7 @@ function showConfirm(title, msg, cb) {
   document.getElementById('confirm-overlay').classList.add('open');
 }
 function closeConfirm() { document.getElementById('confirm-overlay').classList.remove('open'); confirmCallback = null; }
-function runConfirm() { closeConfirm(); if (confirmCallback) confirmCallback(); }
+function runConfirm() { const cb = confirmCallback; closeConfirm(); if (cb) cb(); }
 
 function formatTime(iso) { if (!iso) return '—'; return new Date(iso).toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Lagos' }); }
 function actionBadge(a) { const m={entry:'badge-green',exit:'badge-blue',denied:'badge-red',created:'badge-gray',cancelled:'badge-amber'}; return `<span class="badge ${m[a]||'badge-gray'}">${a}</span>`; }
