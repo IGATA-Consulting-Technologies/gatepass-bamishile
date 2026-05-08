@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><circle cx=%2220%22 cy=%2224%22 r=%2213%22 stroke=%22%23166534%22 stroke-width=%224%22 fill=%22none%22 stroke-dasharray=%2270 12%22/><line x1=%2220%22 y1=%2224%22 x2=%2233%22 y2=%2224%22 stroke=%22%23166534%22 stroke-width=%224%22/><line x1=%2233%22 y1=%2212%22 x2=%2233%22 y2=%2238%22 stroke=%22%23166534%22 stroke-width=%224%22/></svg>" type="image/svg+xml">
 <title>GatePass · Admin Console</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -683,7 +684,7 @@ async function loadIncidents() {
     document.getElementById('incidents-count').textContent = `${data.open_incidents.length} open`;
     document.getElementById('incidents-body').innerHTML = data.open_incidents.length === 0
       ? '<div class="empty-state">No incidents reported</div>'
-      : data.open_incidents.map(i => `<div class="incident-card"><div class="incident-header"><div><div class="incident-title">${i.description}</div><div class="incident-meta">${i.gate_id} gate · ${formatTime(i.created_at)} · ${i.reported_by}</div></div><div style="display:flex;gap:8px;">${severityBadge(i.severity)}<span class="badge badge-amber">${i.status}</span></div></div></div>`).join('');
+      : data.open_incidents.map(i => `<div class="incident-card"><div class="incident-header"><div><div class="incident-title">${i.description}</div><div class="incident-meta">${i.gate_id} gate · ${formatTime(i.created_at)} · ${i.reported_by}</div></div><div>${severityBadge(i.severity)}</div></div></div>`).join('');
   } catch (e) { console.error(e); }
 }
 
